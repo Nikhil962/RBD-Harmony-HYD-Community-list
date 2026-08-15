@@ -39,17 +39,17 @@ const allCategories = [...new Set(providers?.flatMap(p => p.categories || []))]
 				/>
 			</div>
 
-			<div class="flex justify-between items-center px-1">
-				<div class="flex gap-2 overflow-x-auto no-scrollbar py-2" id="filterContainer">
-					<button class="filter-btn active bg-orange-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all shrink-0" data-category="all">All</button>
+			<div class="flex flex-col md:flex-row justify-between items-center px-1 gap-4">
+				<div class="flex gap-2 overflow-x-auto no-scrollbar py-2 w-full md:w-auto" id="filterContainer">
+					<button class="filter-btn active bg-orange-600 text-white px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all shrink-0 shadow-lg shadow-orange-900/20" data-category="all">All</button>
 					{allCategories.map(cat => (
-						<button class="filter-btn bg-zinc-900 border border-zinc-800 text-zinc-400 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:border-orange-500 transition-all shrink-0" data-category={cat}>{cat}</button>
+						<button class="filter-btn bg-zinc-900 border border-zinc-800 text-zinc-400 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest hover:border-zinc-600 transition-all shrink-0" data-category={cat}>{cat}</button>
 					))}
 				</div>
 				
-				<select id="sortSelect" class="bg-zinc-900 text-zinc-400 text-[10px] font-black uppercase tracking-widest border border-zinc-800 rounded-lg px-3 py-2 outline-none focus:border-orange-500 transition-all">
+				<select id="sortSelect" class="w-full md:w-auto bg-zinc-900 text-zinc-400 text-[10px] font-black uppercase tracking-widest border border-zinc-800 rounded-lg px-4 py-2.5 outline-none focus:border-orange-500 transition-all cursor-pointer">
 					<option value="name-asc">Sort: A-Z</option>
-					<option value="verified">Verified First</option>
+					<option value="name-desc">Sort: Z-A</option>
 					<option value="newest">Recently Added</option>
 				</select>
 			</div>
@@ -62,7 +62,6 @@ const allCategories = [...new Set(providers?.flatMap(p => p.categories || []))]
 					 data-id={person.id}
 					 data-name={person.name.toLowerCase()} 
 					 data-categories={person.categories?.join(',')}
-					 data-verified={person.is_verified ? "1" : "0"}
 					 data-date={person.created_at}>
 					
 					<div class="flex-1">
@@ -70,7 +69,6 @@ const allCategories = [...new Set(providers?.flatMap(p => p.categories || []))]
 							<h2 class="text-xl font-bold text-white tracking-tight group-hover:text-orange-500 transition-colors">{person.name}</h2>
 							{person.is_verified && (
 								<div class="flex items-center bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded-full text-[8px] font-black tracking-tighter border border-blue-500/20 uppercase">
-									<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><polyline points="20 6 9 17 4 12"></polyline></svg>
 									Verified
 								</div>
 							)}
@@ -113,12 +111,16 @@ const allCategories = [...new Set(providers?.flatMap(p => p.categories || []))]
 	const grid = document.getElementById('contactsGrid');
 	const cards = Array.from(document.querySelectorAll('.contact-card')) as HTMLElement[];
 
+	// Define the visual states
+	const activeClasses = ['bg-orange-600', 'text-white', 'border-transparent', 'active', 'shadow-lg', 'shadow-orange-900/20'];
+	const inactiveClasses = ['bg-zinc-900', 'text-zinc-400', 'border-zinc-800'];
+
 	function applySearchFilterSort() {
 		const searchTerm = searchInput.value.toLowerCase();
-		const activeCategory = document.querySelector('.filter-btn.active')?.getAttribute('data-category');
+		const activeBtn = document.querySelector('.filter-btn.active');
+		const activeCategory = activeBtn?.getAttribute('data-category');
 		const sortBy = sortSelect.value;
 
-		// 1. Filtering Logic
 		const visibleCards = cards.filter(card => {
 			const name = card.getAttribute('data-name') || '';
 			const categories = card.getAttribute('data-categories')?.split(',') || [];
@@ -131,19 +133,16 @@ const allCategories = [...new Set(providers?.flatMap(p => p.categories || []))]
 			return isVisible;
 		});
 
-		// 2. Sorting Logic
 		visibleCards.sort((a, b) => {
-			if (sortBy === 'name-asc') {
-				return a.getAttribute('data-name')!.localeCompare(b.getAttribute('data-name')!);
-			} else if (sortBy === 'verified') {
-				return b.getAttribute('data-verified')!.localeCompare(a.getAttribute('data-verified')!);
-			} else if (sortBy === 'newest') {
-				return new Date(b.getAttribute('data-date')!).getTime() - new Date(a.getAttribute('data-date')!).getTime();
-			}
+			const nameA = a.getAttribute('data-name')!;
+			const nameB = b.getAttribute('data-name')!;
+			
+			if (sortBy === 'name-asc') return nameA.localeCompare(nameB);
+			if (sortBy === 'name-desc') return nameB.localeCompare(nameA);
+			if (sortBy === 'newest') return new Date(b.getAttribute('data-date')!).getTime() - new Date(a.getAttribute('data-date')!).getTime();
 			return 0;
 		});
 
-		// 3. Re-append in sorted order
 		visibleCards.forEach(card => grid?.appendChild(card));
 	}
 
@@ -152,8 +151,15 @@ const allCategories = [...new Set(providers?.flatMap(p => p.categories || []))]
 	
 	filterBtns.forEach(btn => {
 		btn.addEventListener('click', () => {
-			filterBtns.forEach(b => b.classList.remove('active', 'bg-orange-600', 'text-white'));
-			btn.classList.add('active', 'bg-orange-600', 'text-white');
+			// Clear all buttons
+			filterBtns.forEach(b => {
+				b.classList.remove(...activeClasses);
+				b.classList.add(...inactiveClasses);
+			});
+			// Highight current button
+			btn.classList.add(...activeClasses);
+			btn.classList.remove(...inactiveClasses);
+			
 			applySearchFilterSort();
 		});
 	});
@@ -162,9 +168,11 @@ const allCategories = [...new Set(providers?.flatMap(p => p.categories || []))]
 <style is:global>
 	@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
 	body { 
-		background-color: #09090b; /* Zinc 950 */
+		background-color: #09090b; 
 		font-family: 'Inter', sans-serif;
 		color-scheme: dark;
 	}
 	.no-scrollbar::-webkit-scrollbar { display: none; }
+    /* Fix for button active state persistence */
+    .filter-btn.active { pointer-events: none; }
 </style>
