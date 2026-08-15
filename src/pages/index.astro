@@ -2,30 +2,47 @@
 import Layout from '../layouts/Layout.astro';
 import { supabase } from '../lib/supabase';
 
-const { data: providers } = await supabase
+// Fetch all providers from Supabase
+const { data: providers, error } = await supabase
   .from('providers')
   .select('*')
   .order('name', { ascending: true });
 
-// Extract unique categories from arrays for the filter buttons
-// flatMap handles the array structure perfectly
+if (error) {
+	console.log("Supabase Error:", error.message);
+}
+
+// Extract unique categories from all providers to create the filter buttons
 const allCategories = [...new Set(providers?.flatMap(p => p.categories))].sort();
 ---
 
-<Layout title="Community Help Directory">
+<Layout title="RBD Harmony Help Directory">
 	<main class="max-w-2xl mx-auto p-4 md:p-10 font-sans">
 		
-		<header class="mb-8 flex justify-between items-start">
+		<!-- Header -->
+		<header class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
 			<div>
-				<h1 class="text-3xl font-black text-slate-900 tracking-tight">RBD Harmony Help</h1>
-				<p class="text-slate-500 mt-1 italic text-sm">Find trusted help in our community</p>
+				<h1 class="text-3xl font-black text-slate-900 tracking-tight leading-none">RBD Harmony</h1>
+				<p class="text-slate-500 mt-2 italic text-sm">Community Help Directory</p>
 			</div>
-			<a 
-				href="mailto:lihkinksnikhil@gmail.com?subject=Request to Add New Contact&body=Please add the following contact:%0D%0AName:%0D%0ACategories (e.g. Plumber, Maid):%0D%0APhone:" 
-				class="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-100"
-			>
-				+ Add New
-			</a>
+			
+			<div class="flex gap-2 w-full md:w-auto">
+				<!-- Add New Contact Button -->
+				<a 
+					href="mailto:lihkinksnikhil@gmail.com?subject=RBD%20Harmony%20-%20Request%20to%20Add%20New%20Contact&body=Please%20add%20the%20following%20contact:%0D%0AName:%0D%0ACategories:%0D%0APhone:" 
+					class="flex-1 md:flex-none text-center bg-blue-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-100 uppercase tracking-wider"
+				>
+					+ Add
+				</a>
+
+				<!-- Remove Contact Button -->
+				<a 
+					href="mailto:lihkinksnikhil@gmail.com?subject=RBD%20Harmony%20-%20Request%20to%20Remove%20Contact&body=Please%20remove%20this%20contact:%0D%0AName:%0D%0ACategory:%0D%0AReason%20(Optional):" 
+					class="flex-1 md:flex-none text-center bg-slate-100 text-slate-600 px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-slate-200 transition uppercase tracking-wider border border-slate-200"
+				>
+					- Remove
+				</a>
+			</div>
 		</header>
 
 		<!-- Search Bar -->
@@ -33,69 +50,91 @@ const allCategories = [...new Set(providers?.flatMap(p => p.categories))].sort()
 			<input 
 				type="text" 
 				id="searchInput"
-				placeholder="Search name or work (e.g. Electrician)..." 
-				class="w-full p-4 rounded-2xl border-0 shadow-xl ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-500 outline-none text-lg transition-all"
+				placeholder="Search name or work (e.g. Plumber)..." 
+				class="w-full p-4 rounded-2xl border-0 shadow-xl ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-500 outline-none text-lg transition-all bg-white/90 backdrop-blur-md"
 			/>
 		</div>
 
 		<!-- Category Filters -->
 		<div class="flex flex-wrap gap-2 mb-8" id="filterContainer">
-			<button class="filter-btn active bg-slate-900 text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all" data-category="all">All</button>
+			<button class="filter-btn active bg-slate-900 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all" data-category="all">
+				All
+			</button>
 			{allCategories.map(cat => (
-				<button class="filter-btn bg-white border border-slate-200 text-slate-600 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider hover:border-blue-300 transition-all" data-category={cat}>{cat}</button>
+				<button 
+					class="filter-btn bg-white border border-slate-200 text-slate-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:border-blue-300 transition-all" 
+					data-category={cat}
+				>
+					{cat}
+				</button>
 			))}
 		</div>
 
 		<!-- Contacts Grid -->
 		<div class="grid gap-4" id="contactsGrid">
-			{providers?.map((person) => (
-				<div class="contact-card border border-slate-200 rounded-3xl p-5 bg-white shadow-sm flex justify-between items-center transition-all duration-200" 
-					 data-name={person.name.toLowerCase()} 
-					 data-categories={person.categories.join(',')}>
-					<div class="flex-1">
-						<div class="flex items-center gap-2 mb-2">
-							<h2 class="text-xl font-bold text-slate-800 leading-tight">{person.name}</h2>
-							{person.is_verified && <span class="text-blue-500">✔</span>}
-						</div>
-						
-						<!-- Support for Multiple Category Badges -->
-						<div class="flex flex-wrap gap-1.5 mb-3">
-							{person.categories.map((cat: string) => (
-								<span class="bg-blue-50 text-blue-700 text-[10px] font-black uppercase px-2 py-0.5 rounded-md border border-blue-100">
-									{cat}
-								</span>
-							))}
-						</div>
-
-						<div class="flex items-center gap-3">
-							<span class="text-amber-500 font-bold text-sm">⭐ {person.rating}</span>
-							<div class="flex gap-1">
-								{person.languages.map((lang: string) => (
-									<span class="text-[9px] text-slate-400 font-bold uppercase">{lang}</span>
+			{providers && providers.length > 0 ? (
+				providers.map((person) => (
+					<div 
+						class="contact-card border border-slate-200 rounded-3xl p-5 bg-white shadow-sm flex justify-between items-center transition-all duration-200 hover:border-blue-300 hover:shadow-md" 
+						data-name={person.name.toLowerCase()} 
+						data-categories={person.categories.join(',')}
+					>
+						<div class="flex-1">
+							<div class="flex items-center gap-2 mb-2">
+								<h2 class="text-xl font-bold text-slate-800 leading-tight">{person.name}</h2>
+								{person.is_verified && (
+									<span class="text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded text-[10px] font-bold border border-blue-100">✔ VERIFIED</span>
+								)}
+							</div>
+							
+							<!-- Multiple Category Tags -->
+							<div class="flex flex-wrap gap-1.5 mb-3">
+								{person.categories.map((cat: string) => (
+									<span class="text-blue-600 font-bold text-[10px] uppercase tracking-widest">
+										{cat}
+									</span>
 								))}
 							</div>
+
+							<div class="flex items-center gap-3">
+								<span class="text-amber-500 font-bold text-sm">⭐ {person.rating}</span>
+								<div class="flex gap-1">
+									{person.languages.map((lang: string) => (
+										<span class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">{lang}</span>
+									))}
+								</div>
+							</div>
 						</div>
+						
+						<!-- One-Tap Call Button -->
+						<a 
+							href={`tel:${person.phone}`} 
+							class="bg-green-500 hover:bg-green-600 text-white p-4 rounded-2xl transition-all shadow-md active:scale-90 ml-4 shadow-green-100"
+						>
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+						</a>
 					</div>
-					
-					<a href={`tel:${person.phone}`} class="bg-green-500 hover:bg-green-600 text-white p-4 rounded-2xl transition-all shadow-md active:scale-90 ml-4">
-						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-					</a>
+				))
+			) : (
+				<div class="text-center py-20 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
+					<p class="text-slate-400 font-medium">No contacts found in directory.</p>
 				</div>
-			))}
+			)}
 		</div>
 
 		<footer class="mt-20 py-10 text-center border-t border-slate-100">
-			<p class="text-slate-400 text-xs font-bold uppercase tracking-widest">RBD Harmony • Hyderabad</p>
+			<p class="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">RBD Harmony • Hyderabad</p>
 		</footer>
 	</main>
 </Layout>
 
+<!-- Client-side Filtering Logic -->
 <script>
 	const searchInput = document.getElementById('searchInput') as HTMLInputElement;
 	const filterBtns = document.querySelectorAll('.filter-btn');
 	const cards = document.querySelectorAll('.contact-card') as NodeListOf<HTMLElement>;
 
-	function filterContacts() {
+	function performFilter() {
 		const searchTerm = searchInput.value.toLowerCase();
 		const activeCategory = document.querySelector('.filter-btn.active')?.getAttribute('data-category');
 
@@ -103,11 +142,9 @@ const allCategories = [...new Set(providers?.flatMap(p => p.categories))].sort()
 			const name = card.getAttribute('data-name') || '';
 			const categories = card.getAttribute('data-categories')?.split(',') || [];
 			
-			// Check if searchTerm matches name or any category in the list
 			const matchesSearch = name.includes(searchTerm) || 
 								categories.some(c => c.toLowerCase().includes(searchTerm));
 			
-			// Check if activeCategory filter matches any of the person's categories
 			const matchesCategory = activeCategory === 'all' || categories.includes(activeCategory);
 
 			if (matchesSearch && matchesCategory) {
@@ -118,17 +155,20 @@ const allCategories = [...new Set(providers?.flatMap(p => p.categories))].sort()
 		});
 	}
 
-	searchInput?.addEventListener('input', filterContacts);
+	// Listen for typing
+	searchInput?.addEventListener('input', performFilter);
 
+	// Listen for filter button clicks
 	filterBtns.forEach(btn => {
 		btn.addEventListener('click', () => {
 			filterBtns.forEach(b => b.classList.remove('active', 'bg-slate-900', 'text-white'));
 			btn.classList.add('active', 'bg-slate-900', 'text-white');
-			filterContacts();
+			performFilter();
 		});
 	});
 </script>
 
 <style is:global>
-	body { background-color: #fcfdfe; }
+	body { background-color: #f8fafc; }
+	.active { pointer-events: none; }
 </style>
