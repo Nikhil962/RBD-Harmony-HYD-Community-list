@@ -61,12 +61,12 @@ const allLanguages = [...new Set(providers?.flatMap(p => p.languages || []))]
 			<input 
 				type="text" 
 				id="searchInput" 
-				placeholder="Search roles, names, or keywords..." 
+				placeholder="Search roles, names, or keywords... (e.g. Plumber, Maid, Ramesh)" 
 				class="w-full p-4 bg-transparent border-none outline-none text-white placeholder-zinc-600 font-medium" 
 			/>
 		</div>
 
-		<!-- Combined Filters Row -->
+		<!-- Filters Section -->
 		<div class="space-y-4 mb-8">
 			<!-- Category Filter -->
 			<div class="flex flex-col gap-2">
@@ -90,13 +90,20 @@ const allLanguages = [...new Set(providers?.flatMap(p => p.languages || []))]
 				</div>
 			</div>
 
-			<!-- Sort -->
-			<div class="pt-2">
-				<select id="sortSelect" class="w-full bg-zinc-900 text-zinc-400 text-[10px] font-black uppercase tracking-widest border border-zinc-800 rounded-2xl px-4 py-3 outline-none focus:ring-1 focus:ring-orange-500 transition-all cursor-pointer">
+			<!-- Sort & Reset Controls -->
+			<div class="flex gap-2 pt-2">
+				<select id="sortSelect" class="flex-1 bg-zinc-900 text-zinc-400 text-[10px] font-black uppercase tracking-widest border border-zinc-800 rounded-2xl px-4 py-3 outline-none focus:ring-1 focus:ring-orange-500 transition-all cursor-pointer">
 					<option value="name-asc">Sort: A-Z</option>
 					<option value="name-desc">Sort: Z-A</option>
 					<option value="newest">Recently Added</option>
 				</select>
+				
+				<button 
+					id="resetBtn"
+					class="bg-zinc-900 border border-zinc-800 text-zinc-500 px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:text-red-500 hover:border-red-500/30 transition-all active:scale-95"
+				>
+					Reset
+				</button>
 			</div>
 		</div>
 
@@ -156,11 +163,11 @@ const allLanguages = [...new Set(providers?.flatMap(p => p.languages || []))]
 <script>
 	const searchInput = document.getElementById('searchInput') as HTMLInputElement;
 	const sortSelect = document.getElementById('sortSelect') as HTMLSelectElement;
+	const resetBtn = document.getElementById('resetBtn');
 	const filterBtns = document.querySelectorAll('.filter-btn');
 	const grid = document.getElementById('contactsGrid');
 	const cards = Array.from(document.querySelectorAll('.contact-card')) as HTMLElement[];
 
-	// Define Active Visuals for both types
 	const orangeActive = ['bg-orange-600', 'text-white', 'border-transparent', 'active'];
 	const blueActive = ['bg-blue-600', 'text-white', 'border-transparent', 'active'];
 	const inactive = ['bg-zinc-900', 'text-zinc-400', 'border-zinc-800'];
@@ -182,7 +189,6 @@ const allLanguages = [...new Set(providers?.flatMap(p => p.languages || []))]
 			const desc = card.getAttribute('data-description') || '';
 			
 			const matchesSearch = name.includes(searchTerm) || cats.some(c => c.toLowerCase().includes(searchTerm)) || desc.includes(searchTerm);
-			
 			const matchesCat = activeCats.length === 0 || cats.some(c => activeCats.includes(c));
 			const matchesLang = activeLangs.length === 0 || langs.some(l => activeLangs.includes(l));
 			
@@ -202,6 +208,26 @@ const allLanguages = [...new Set(providers?.flatMap(p => p.languages || []))]
 
 		visibleCards.forEach(card => grid?.appendChild(card));
 	}
+
+	// Reset Functionality
+	resetBtn?.addEventListener('click', () => {
+		searchInput.value = '';
+		sortSelect.value = 'name-asc';
+		
+		// Reset Category group
+		document.querySelectorAll('.category-btn').forEach(b => {
+			b.classList.remove(...orangeActive); b.classList.add(...inactive);
+		});
+		document.querySelector('.category-btn[data-value="all"]')?.classList.add(...orangeActive);
+		
+		// Reset Language group
+		document.querySelectorAll('.language-btn').forEach(b => {
+			b.classList.remove(...blueActive); b.classList.add(...inactive);
+		});
+		document.querySelector('.language-btn[data-value="all"]')?.classList.add(...blueActive);
+
+		applyAll();
+	});
 
 	searchInput?.addEventListener('input', applyAll);
 	sortSelect?.addEventListener('change', applyAll);
