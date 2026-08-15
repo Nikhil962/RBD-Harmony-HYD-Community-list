@@ -2,149 +2,116 @@
 import Layout from '../layouts/Layout.astro';
 import { supabase } from '../lib/supabase';
 
-// Fetch all providers from Supabase
-const { data: providers, error } = await supabase
+const { data: providers } = await supabase
   .from('providers')
   .select('*')
   .order('name', { ascending: true });
 
-if (error) {
-	console.log("Supabase Error:", error.message);
-}
-
-// Extract unique categories from all providers to create the filter buttons
 const allCategories = [...new Set(providers?.flatMap(p => p.categories || []))]
-  .filter(cat => cat && cat.trim() !== '') // This removes empty or null categories
+  .filter(cat => cat && cat.trim() !== '')
   .sort();
 ---
 
-<Layout title="RBD Harmony Help Directory">
-	<main class="max-w-2xl mx-auto p-4 md:p-10 font-sans">
+<Layout title="RBD Harmony | Community Directory">
+	<!-- Hero Section -->
+	<div class="relative h-[40vh] min-h-[300px] flex items-center justify-center overflow-hidden">
+		<img 
+			src="/community.jpg" 
+			class="absolute inset-0 w-full h-full object-cover"
+			alt="RBD Harmony"
+		/>
+		<div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent"></div>
 		
-		<!-- Header -->
-		<header class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-			<div>
-				<h1 class="text-3xl font-black text-slate-900 tracking-tight leading-none">RBD Harmony</h1>
-				<p class="text-slate-500 mt-2 italic text-sm">Community Help Directory</p>
-			</div>
+		<div class="relative z-10 text-center px-4">
+			<h1 class="text-4xl md:text-5xl font-black text-white tracking-tight drop-shadow-lg">RBD HARMONY</h1>
+			<p class="text-orange-400 font-bold tracking-[0.2em] text-sm mt-2 uppercase drop-shadow-md">Verified Help Directory</p>
 			
-			<div class="flex gap-2 w-full md:w-auto">
-				<!-- Add New Contact Button -->
-				<a 
-					href="mailto:lihkinksnikhil@gmail.com?subject=RBD%20Harmony%20-%20Request%20to%20Add%20New%20Contact&body=Please%20add%20the%20following%20contact:%0D%0AName:%0D%0ACategories:%0D%0APhone:" 
-					class="flex-1 md:flex-none text-center bg-blue-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-100 uppercase tracking-wider"
-				>
-					+ Add
-				</a>
-
-				<!-- Remove Contact Button -->
-				<a 
-					href="mailto:lihkinksnikhil@gmail.com?subject=RBD%20Harmony%20-%20Request%20to%20Remove%20Contact&body=Please%20remove%20this%20contact:%0D%0AName:%0D%0ACategory:%0D%0AReason%20(Optional):" 
-					class="flex-1 md:flex-none text-center bg-slate-100 text-slate-600 px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-slate-200 transition uppercase tracking-wider border border-slate-200"
-				>
-					- Remove
-				</a>
+			<!-- Desktop Action Buttons -->
+			<div class="hidden md:flex gap-3 justify-center mt-6">
+				<a href="mailto:lihkinksnikhil@gmail.com?subject=RBD Harmony - Add New&body=Name:" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full font-bold text-sm transition-all shadow-lg">+ Add New</a>
+				<a href="mailto:lihkinksnikhil@gmail.com?subject=RBD Harmony - Remove&body=Name:" class="bg-white/20 hover:bg-white/30 backdrop-blur-md text-white px-6 py-2 rounded-full font-bold text-sm transition-all border border-white/30">- Remove</a>
 			</div>
-		</header>
+		</div>
+	</div>
 
-		<!-- Search Bar -->
-		<div class="sticky top-4 z-10 mb-6">
+	<main class="max-w-2xl mx-auto px-4 -mt-12 relative z-20 pb-20">
+		
+		<!-- Glassmorphism Search Bar -->
+		<div class="bg-white/80 backdrop-blur-xl p-2 rounded-3xl shadow-2xl ring-1 ring-black/5 mb-8">
 			<input 
 				type="text" 
 				id="searchInput"
-				placeholder="Search name or work (e.g. Plumber)..." 
-				class="w-full p-4 rounded-2xl border-0 shadow-xl ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-500 outline-none text-lg transition-all bg-white/90 backdrop-blur-md"
+				placeholder="Search for a plumber, maid, electrician..." 
+				class="w-full p-4 rounded-2xl bg-transparent border-none outline-none text-lg text-slate-800 placeholder-slate-400"
 			/>
 		</div>
 
-		<!-- Category Filters -->
-<div class="flex flex-wrap gap-2 mb-8" id="filterContainer">
-    <!-- ALL Button (Starts as Active) -->
-    <button 
-        class="filter-btn active bg-slate-900 text-white border-slate-900 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all shadow-sm" 
-        data-category="all"
-    >
-        All
-    </button>
-    
-    <!-- Dynamic Category Buttons (Start as Inactive) -->
-    {allCategories.map(cat => (
-        <button 
-            class="filter-btn bg-white border-slate-200 text-slate-600 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest hover:border-blue-300 transition-all border" 
-            data-category={cat}
-        >
-            {cat}
-        </button>
-    ))}
-</div>
-
-		<!-- Contacts Grid -->
-		<div class="grid gap-4" id="contactsGrid">
-			{providers && providers.length > 0 ? (
-				providers.map((person) => (
-					<div 
-						class="contact-card border border-slate-200 rounded-3xl p-5 bg-white shadow-sm flex justify-between items-center transition-all duration-200 hover:border-blue-300 hover:shadow-md" 
-						data-name={person.name.toLowerCase()} 
-						data-categories={person.categories.join(',')}
-					>
-						<div class="flex-1">
-							<div class="flex items-center gap-2 mb-2">
-								<h2 class="text-xl font-bold text-slate-800 leading-tight">{person.name}</h2>
-								{person.is_verified && (
-									<span class="text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded text-[10px] font-bold border border-blue-100">✔ VERIFIED</span>
-								)}
-							</div>
-							
-							<!-- Multiple Category Tags -->
-							<div class="flex flex-wrap gap-1.5 mb-3">
-								{person.categories.map((cat: string) => (
-									<span class="text-blue-600 font-bold text-[10px] uppercase tracking-widest">
-										{cat}
-									</span>
-								))}
-							</div>
-
-							<div class="flex items-center gap-3">
-								<span class="text-amber-500 font-bold text-sm">⭐ {person.rating}</span>
-								<div class="flex gap-1">
-									{person.languages.map((lang: string) => (
-										<span class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">{lang}</span>
-									))}
-								</div>
-							</div>
-						</div>
-						
-						<!-- One-Tap Call Button -->
-						<a 
-							href={`tel:${person.phone}`} 
-							class="bg-green-500 hover:bg-green-600 text-white p-4 rounded-2xl transition-all shadow-md active:scale-90 ml-4 shadow-green-100"
-						>
-							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-						</a>
-					</div>
-				))
-			) : (
-				<div class="text-center py-20 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
-					<p class="text-slate-400 font-medium">No contacts found in directory.</p>
-				</div>
-			)}
+		<!-- Category Filter (Pills) -->
+		<div class="flex gap-2 overflow-x-auto pb-4 no-scrollbar mb-6" id="filterContainer">
+			<button class="filter-btn active bg-orange-500 text-white px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all shrink-0 shadow-orange-200 shadow-lg" data-category="all">All</button>
+			{allCategories.map(cat => (
+				<button class="filter-btn bg-white border border-slate-200 text-slate-500 px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest hover:border-orange-300 transition-all shrink-0" data-category={cat}>{cat}</button>
+			))}
 		</div>
 
-		<footer class="mt-20 py-10 text-center border-t border-slate-100">
-			<p class="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">RBD Harmony • Hyderabad</p>
-		</footer>
+		<!-- Mobile Action Buttons -->
+		<div class="flex md:hidden gap-2 mb-8">
+			<a href="mailto:..." class="flex-1 bg-slate-900 text-white p-3 rounded-2xl text-center text-xs font-bold uppercase tracking-widest">+ Add</a>
+			<a href="mailto:..." class="flex-1 bg-slate-100 text-slate-600 p-3 rounded-2xl text-center text-xs font-bold uppercase tracking-widest">- Remove</a>
+		</div>
+
+		<!-- Contacts List -->
+		<div class="grid gap-4" id="contactsGrid">
+			{providers?.map((person) => (
+				<div class="contact-card group bg-white border border-slate-100 rounded-[2rem] p-6 flex justify-between items-center shadow-sm hover:shadow-xl hover:border-orange-200 transition-all duration-300" 
+					 data-name={person.name.toLowerCase()} 
+					 data-categories={person.categories.join(',')}>
+					<div class="flex-1">
+						<div class="flex items-center gap-2 mb-1">
+							<h2 class="text-xl font-bold text-slate-800 group-hover:text-orange-600 transition-colors">{person.name}</h2>
+							{person.is_verified && <span class="text-blue-500 text-sm">●</span>}
+						</div>
+						
+						<div class="flex flex-wrap gap-1.5 mb-4">
+							{person.categories.map((cat: string) => (
+								<span class="text-orange-500 font-black text-[9px] uppercase tracking-widest">
+									{cat}
+								</span>
+							))}
+						</div>
+
+						<div class="flex items-center gap-4">
+							<div class="bg-orange-50 px-2 py-1 rounded-lg">
+								<span class="text-orange-600 font-bold text-xs">⭐ {person.rating}</span>
+							</div>
+							<div class="flex gap-2">
+								{person.languages.map((lang: string) => (
+									<span class="text-[9px] text-slate-400 font-bold uppercase border-b border-slate-200">{lang}</span>
+								))}
+							</div>
+						</div>
+					</div>
+					
+					<a href={`tel:${person.phone}`} class="bg-blue-500 hover:bg-orange-500 text-white p-5 rounded-[1.5rem] transition-all shadow-lg shadow-blue-100 hover:shadow-orange-100 active:scale-90">
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+					</a>
+				</div>
+			))}
+		</div>
+
+		<p class="mt-12 text-center text-slate-400 text-[10px] font-bold uppercase tracking-[0.3em]">
+			Engineered for RBD Harmony Residents
+		</p>
 	</main>
 </Layout>
 
-<!-- Client-side Filtering Logic -->
 <script>
 	const searchInput = document.getElementById('searchInput') as HTMLInputElement;
 	const filterBtns = document.querySelectorAll('.filter-btn');
 	const cards = document.querySelectorAll('.contact-card') as NodeListOf<HTMLElement>;
 
-	// Define the classes for Active vs Inactive states
-	const activeClasses = ['bg-slate-900', 'text-white', 'border-slate-900', 'active'];
-	const inactiveClasses = ['bg-white', 'text-slate-600', 'border-slate-200'];
+	const activeClasses = ['bg-orange-500', 'text-white', 'shadow-orange-200', 'shadow-lg', 'active', 'border-transparent'];
+	const inactiveClasses = ['bg-white', 'text-slate-500', 'border-slate-200'];
 
 	function performFilter() {
 		const searchTerm = searchInput.value.toLowerCase();
@@ -154,17 +121,9 @@ const allCategories = [...new Set(providers?.flatMap(p => p.categories || []))]
 		cards.forEach(card => {
 			const name = card.getAttribute('data-name') || '';
 			const categories = card.getAttribute('data-categories')?.split(',') || [];
-			
-			const matchesSearch = name.includes(searchTerm) || 
-								categories.some(c => c.toLowerCase().includes(searchTerm));
-			
+			const matchesSearch = name.includes(searchTerm) || categories.some(c => c.toLowerCase().includes(searchTerm));
 			const matchesCategory = activeCategory === 'all' || categories.includes(activeCategory);
-
-			if (matchesSearch && matchesCategory) {
-				card.style.display = 'flex';
-			} else {
-				card.style.display = 'none';
-			}
+			card.style.display = (matchesSearch && matchesCategory) ? 'flex' : 'none';
 		});
 	}
 
@@ -172,23 +131,23 @@ const allCategories = [...new Set(providers?.flatMap(p => p.categories || []))]
 
 	filterBtns.forEach(btn => {
 		btn.addEventListener('click', () => {
-			// 1. Reset ALL buttons to the "Inactive" look
 			filterBtns.forEach(b => {
 				b.classList.remove(...activeClasses);
 				b.classList.add(...inactiveClasses);
 			});
-
-			// 2. Set the CLICKED button to the "Active" look
 			btn.classList.remove(...inactiveClasses);
 			btn.classList.add(...activeClasses);
-
-			// 3. Run the filter logic
 			performFilter();
 		});
 	});
 </script>
 
 <style is:global>
-	body { background-color: #f8fafc; }
-	.active { pointer-events: none; }
+	@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+	body { 
+		background-color: #f8fafc;
+		font-family: 'Inter', sans-serif;
+	}
+	.no-scrollbar::-webkit-scrollbar { display: none; }
+	.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 </style>
