@@ -13,7 +13,9 @@ if (error) {
 }
 
 // Extract unique categories from all providers to create the filter buttons
-const allCategories = [...new Set(providers?.flatMap(p => p.categories))].sort();
+const allCategories = [...new Set(providers?.flatMap(p => p.categories || []))]
+  .filter(cat => cat && cat.trim() !== '') // This removes empty or null categories
+  .sort();
 ---
 
 <Layout title="RBD Harmony Help Directory">
@@ -56,19 +58,22 @@ const allCategories = [...new Set(providers?.flatMap(p => p.categories))].sort()
 		</div>
 
 		<!-- Category Filters -->
-		<div class="flex flex-wrap gap-2 mb-8" id="filterContainer">
-			<button class="filter-btn active bg-slate-900 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all" data-category="all">
-				All
-			</button>
-			{allCategories.map(cat => (
-				<button 
-					class="filter-btn bg-white border border-slate-200 text-slate-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:border-blue-300 transition-all" 
-					data-category={cat}
-				>
-					{cat}
-				</button>
-			))}
-		</div>
+<div class="flex flex-wrap gap-2 mb-8" id="filterContainer">
+    <button 
+        class="filter-btn active bg-slate-900 text-white px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all shadow-md" 
+        data-category="all"
+    >
+        All
+    </button>
+    {allCategories.map(cat => (
+        <button 
+            class="filter-btn bg-white border border-slate-200 text-slate-600 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest hover:border-blue-300 transition-all" 
+            data-category={cat}
+        >
+            {cat}
+        </button>
+    ))}
+</div>
 
 		<!-- Contacts Grid -->
 		<div class="grid gap-4" id="contactsGrid">
