@@ -2,197 +2,208 @@
 import Layout from '../layouts/Layout.astro';
 import { supabase } from '../lib/supabase';
 
-// Fetch providers from Supabase
-const { data: providers, error } = await supabase
+const { data: providers } = await supabase
   .from('providers')
   .select('*')
   .order('name', { ascending: true });
 
-if (error) {
-	console.log("Supabase Error:", error.message);
-}
-
-// Extract unique categories for the filter buttons
 const allCategories = [...new Set(providers?.flatMap(p => p.categories || []))]
   .filter(cat => cat && cat.trim() !== '')
   .sort();
 ---
 
-<Layout title="RBD Harmony | Community Directory">
+<Layout title="RBD Harmony | Help Directory">
 	
-	<!-- Hero Section with Building Image -->
-	<div class="relative h-[35vh] min-h-[350px] flex items-center justify-center overflow-hidden">
-		<img 
-			src="/community.jpg" 
-			class="absolute inset-0 w-full h-full object-cover"
-			alt="RBD Harmony Buildings"
-		/>
-		<div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent"></div>
-		
+	<!-- Hero Section -->
+	<div class="relative h-[30vh] min-h-[300px] flex items-center justify-center overflow-hidden">
+		<img src="/community.jpg" class="absolute inset-0 w-full h-full object-cover" alt="RBD Harmony" />
+		<div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent"></div>
 		<div class="relative z-10 text-center px-4">
-			<h1 class="text-4xl md:text-6xl font-black text-white tracking-tighter drop-shadow-2xl uppercase">RBD Harmony</h1>
-			<p class="text-orange-400 font-bold tracking-[0.3em] text-[10px] md:text-xs mt-3 uppercase drop-shadow-md">Professional Help Directory</p>
-			
-			<!-- Desktop Action Buttons -->
-			<div class="hidden md:flex gap-3 justify-center mt-8">
-				<a href="mailto:lihkinksnikhil@gmail.com?subject=RBD%20Harmony%20-%20Add%20New&body=Name:%0D%0ACategories:%0D%0APhone:" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2.5 rounded-full font-bold text-xs transition-all shadow-xl uppercase tracking-widest">+ Add New</a>
-				<a href="mailto:lihkinksnikhil@gmail.com?subject=RBD%20Harmony%20-%20New%20Review&body=Reviewing:%0D%0APunctuality(1-5):%0D%0AQuality(1-5):%0D%0ABehavior(1-5):%0D%0APricing(1-5):" class="bg-amber-500 hover:bg-amber-600 text-white px-6 py-2.5 rounded-full font-bold text-xs transition-all shadow-xl uppercase tracking-widest">⭐ Rate</a>
-				<a href="mailto:lihkinksnikhil@gmail.com?subject=RBD%20Harmony%20-%20Remove&body=Name:" class="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white px-6 py-2.5 rounded-full font-bold text-xs transition-all border border-white/30 uppercase tracking-widest">- Remove</a>
-			</div>
+			<h1 class="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase">RBD Harmony</h1>
+			<p class="text-orange-400 font-bold tracking-[0.3em] text-[10px] mt-2 uppercase">Community Help Directory</p>
 		</div>
 	</div>
 
 	<main class="max-w-2xl mx-auto px-4 -mt-10 relative z-20 pb-20 font-sans">
 		
-		<!-- Floating Search Bar -->
-		<div class="bg-white p-2 rounded-[2rem] shadow-2xl ring-1 ring-black/5 mb-8">
-			<input 
-				type="text" 
-				id="searchInput"
-				placeholder="Search by name or skill (e.g. Plumber)..." 
-				class="w-full p-4 rounded-2xl bg-transparent border-none outline-none text-lg text-slate-800 placeholder-slate-400"
-			/>
+		<!-- Search Bar -->
+		<div class="bg-white p-2 rounded-[2rem] shadow-2xl ring-1 ring-black/5 mb-6">
+			<input type="text" id="searchInput" placeholder="Search for help..." class="w-full p-4 rounded-2xl outline-none text-lg text-slate-800 placeholder-slate-400" />
 		</div>
 
-		<!-- Mobile Only Action Buttons -->
-		<div class="flex md:hidden gap-2 mb-8">
-			<a href="mailto:..." class="flex-1 bg-orange-500 text-white py-3 rounded-2xl text-center text-[10px] font-black uppercase tracking-widest shadow-lg">+ Add</a>
-			<a href="mailto:..." class="flex-1 bg-amber-500 text-white py-3 rounded-2xl text-center text-[10px] font-black uppercase tracking-widest shadow-lg">⭐ Rate</a>
-			<a href="mailto:..." class="flex-1 bg-slate-900 text-white py-3 rounded-2xl text-center text-[10px] font-black uppercase tracking-widest shadow-lg">- Remove</a>
-		</div>
-
-		<!-- Category Filter (Pills) -->
+		<!-- Category Filter -->
 		<div class="flex gap-2 overflow-x-auto pb-6 no-scrollbar mb-4" id="filterContainer">
-			<button class="filter-btn active bg-slate-900 text-white px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all shrink-0 shadow-lg" data-category="all">All</button>
+			<button class="filter-btn active bg-slate-900 text-white px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shrink-0" data-category="all">All</button>
 			{allCategories.map(cat => (
-				<button class="filter-btn bg-white border border-slate-200 text-slate-500 px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] hover:border-orange-300 transition-all shrink-0" data-category={cat}>{cat}</button>
+				<button class="filter-btn bg-white border border-slate-200 text-slate-500 px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:border-orange-300 shrink-0" data-category={cat}>{cat}</button>
 			))}
 		</div>
 
 		<!-- Contacts Grid -->
 		<div class="grid gap-6" id="contactsGrid">
-			{providers && providers.length > 0 ? (
-				providers.map((person) => (
-					<div class="contact-card group bg-white border border-slate-100 rounded-[2.5rem] p-8 flex flex-col md:flex-row justify-between items-start md:items-center shadow-sm hover:shadow-2xl hover:border-orange-200 transition-all duration-500 gap-6" 
-						 data-name={person.name.toLowerCase()} 
-						 data-categories={person.categories?.join(',')}>
-						
-						<div class="flex-1 w-full">
-							<!-- Header: Name & Role -->
-							<div class="flex items-center gap-3 mb-2">
-								<h2 class="text-2xl font-black text-slate-800 tracking-tight group-hover:text-orange-500 transition-colors">{person.name}</h2>
-								{person.is_verified && <span class="text-blue-500 bg-blue-50 px-2 py-0.5 rounded-full text-[9px] font-black tracking-tighter border border-blue-100 uppercase">Verified</span>}
+			{providers?.map((person) => (
+				<div class="contact-card group bg-white border border-slate-100 rounded-[2.5rem] p-6 shadow-sm hover:shadow-xl transition-all duration-500" 
+					 data-id={person.id}
+					 data-name={person.name.toLowerCase()} 
+					 data-categories={person.categories?.join(',')}
+					 data-count={person.review_count}
+					 data-p={person.score_punctuality}
+					 data-q={person.score_quality}
+					 data-b={person.score_behavior}>
+					
+					<div class="flex justify-between items-start mb-6">
+						<div class="flex-1">
+							<div class="flex items-center gap-2 mb-1">
+								<h2 class="text-2xl font-black text-slate-800 tracking-tight">{person.name}</h2>
+								{person.is_verified && <span class="text-blue-500 bg-blue-50 px-2 py-0.5 rounded-full text-[9px] font-black tracking-tighter border border-blue-100 uppercase font-sans">Verified</span>}
 							</div>
-							
-							<!-- Skills Badges -->
-							<div class="flex flex-wrap gap-2 mb-6">
+							<div class="flex flex-wrap gap-2">
 								{person.categories?.map((cat: string) => (
-									<span class="text-orange-500 font-black text-[9px] uppercase tracking-widest bg-orange-50 px-2 py-1 rounded-md">
-										{cat}
-									</span>
-								))}
-							</div>
-
-							<!-- Structured Ratings Dashboard -->
-							<div class="space-y-4 bg-slate-50/50 p-5 rounded-3xl border border-slate-50">
-								<div class="flex items-end gap-2 mb-2">
-									<span class="text-3xl font-black text-slate-800 leading-none">{person.rating}</span>
-									<span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">{person.review_count} Reviews</span>
-								</div>
-								
-								<div class="grid grid-cols-2 gap-x-6 gap-y-3">
-									{[
-										{ label: 'Punctuality', score: person.score_punctuality },
-										{ label: 'Quality', score: person.score_quality },
-										{ label: 'Behavior', score: person.score_behavior },
-										{ label: 'Value', score: person.score_pricing }
-									].map((m) => (
-										<div class="space-y-1.5">
-											<div class="flex justify-between text-[8px] font-black uppercase tracking-widest text-slate-400">
-												<span>{m.label}</span>
-												<span class="text-slate-900">{m.score}</span>
-											</div>
-											<div class="h-1 w-full bg-slate-200 rounded-full overflow-hidden">
-												<div class="h-full bg-orange-500 rounded-full" style={`width: ${(m.score / 5) * 100}%`}></div>
-											</div>
-										</div>
-									))}
-								</div>
-							</div>
-
-							<!-- Languages -->
-							<div class="flex gap-3 mt-6">
-								{person.languages?.map((lang: string) => (
-									<span class="text-[9px] text-slate-400 font-black uppercase tracking-widest border-b-2 border-slate-100">{lang}</span>
+									<span class="text-orange-500 font-black text-[9px] uppercase tracking-widest">{cat}</span>
 								))}
 							</div>
 						</div>
-						
-						<!-- Massive Call Button -->
-						<a 
-							href={`tel:${person.phone}`} 
-							class="w-full md:w-auto bg-blue-600 hover:bg-orange-500 text-white p-6 md:p-8 rounded-[2rem] transition-all shadow-xl shadow-blue-100 hover:shadow-orange-200 active:scale-95 flex justify-center items-center"
-						>
-							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+						<a href={`tel:${person.phone}`} class="bg-green-500 text-white p-4 rounded-2xl shadow-lg shadow-green-100 active:scale-90">
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
 						</a>
 					</div>
-				))
-			) : (
-				<div class="text-center py-20 bg-white rounded-[3rem] border-2 border-dashed border-slate-100 shadow-inner">
-					<p class="text-slate-300 font-black uppercase tracking-widest text-xs">Waiting for data...</p>
+
+					<!-- Ratings Display -->
+					<div class="grid grid-cols-3 gap-4 mb-6">
+						{[
+							{ label: 'Punctuality', key: 'score_punctuality', value: person.score_punctuality },
+							{ label: 'Quality', key: 'score_quality', value: person.score_quality },
+							{ label: 'Behavior', key: 'score_behavior', value: person.score_behavior }
+						].map((m) => (
+							<div class="text-center">
+								<p class="text-[8px] font-black uppercase text-slate-400 mb-1">{m.label}</p>
+								<p class="text-sm font-black text-slate-800 tracking-tighter">⭐ {m.value}</p>
+							</div>
+						))}
+					</div>
+
+					<!-- Integrated Rating Form -->
+					<button class="w-full py-3 rounded-2xl bg-slate-50 text-slate-500 text-[10px] font-black uppercase tracking-widest hover:bg-orange-50 hover:text-orange-600 transition-all rate-toggle-btn">
+						Rate this service
+					</button>
+
+					<div class="rating-panel hidden mt-6 p-4 bg-orange-50 rounded-3xl border border-orange-100">
+						<p class="text-[10px] font-black text-orange-600 uppercase tracking-widest mb-4 text-center">Submit your rating (1-5)</p>
+						<div class="space-y-4">
+							{['Punctuality', 'Quality', 'Behavior'].map((label) => (
+								<div class="flex justify-between items-center">
+									<span class="text-[10px] font-bold text-slate-600 uppercase">{label}</span>
+									<div class="flex gap-1 rating-stars" data-metric={label.toLowerCase()}>
+										{[1, 2, 3, 4, 5].map((num) => (
+											<button class="w-7 h-7 rounded-lg bg-white border border-orange-200 text-xs font-bold text-orange-400 hover:bg-orange-500 hover:text-white transition-all star-btn" data-value={num}>{num}</button>
+										))}
+									</div>
+								</div>
+							))}
+						</div>
+						<button class="w-full mt-6 bg-orange-500 text-white py-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg submit-rating-btn">Submit to Community</button>
+					</div>
 				</div>
-			)}
+			))}
 		</div>
 
 		<footer class="mt-20 py-10 text-center border-t border-slate-100">
-			<p class="text-slate-300 text-[10px] font-black uppercase tracking-[0.5em]">RBD Harmony • Engineered by Nikhil</p>
+			<div class="flex justify-center gap-4 mb-4">
+				<a href="mailto:lihkinksnikhil@gmail.com?subject=RBD Harmony - Add New" class="text-[10px] font-black text-slate-400 uppercase tracking-widest">+ Add New</a>
+				<a href="mailto:lihkinksnikhil@gmail.com?subject=RBD Harmony - Remove" class="text-[10px] font-black text-slate-400 uppercase tracking-widest">- Remove</a>
+			</div>
+			<p class="text-slate-300 text-[9px] font-black uppercase tracking-[0.5em]">RBD Harmony • Engineered by Nikhil</p>
 		</footer>
 	</main>
 </Layout>
 
 <script>
+	import { supabase } from '../lib/supabase';
+
+	// 1. Search & Filter
 	const searchInput = document.getElementById('searchInput') as HTMLInputElement;
 	const filterBtns = document.querySelectorAll('.filter-btn');
 	const cards = document.querySelectorAll('.contact-card') as NodeListOf<HTMLElement>;
-
-	const activeClasses = ['bg-slate-900', 'text-white', 'shadow-lg', 'active', 'border-transparent'];
-	const inactiveClasses = ['bg-white', 'text-slate-500', 'border-slate-200'];
 
 	function performFilter() {
 		const searchTerm = searchInput.value.toLowerCase();
 		const activeBtn = document.querySelector('.filter-btn.active');
 		const activeCategory = activeBtn?.getAttribute('data-category');
-
 		cards.forEach(card => {
 			const name = card.getAttribute('data-name') || '';
 			const categories = card.getAttribute('data-categories')?.split(',') || [];
 			const matchesSearch = name.includes(searchTerm) || categories.some(c => c.toLowerCase().includes(searchTerm));
 			const matchesCategory = activeCategory === 'all' || categories.includes(activeCategory);
-			card.style.display = (matchesSearch && matchesCategory) ? 'flex' : 'none';
+			card.style.display = (matchesSearch && matchesCategory) ? 'block' : 'none';
 		});
 	}
-
 	searchInput?.addEventListener('input', performFilter);
-
 	filterBtns.forEach(btn => {
 		btn.addEventListener('click', () => {
-			filterBtns.forEach(b => {
-				b.classList.remove(...activeClasses);
-				b.classList.add(...inactiveClasses);
-			});
-			btn.classList.remove(...inactiveClasses);
-			btn.classList.add(...activeClasses);
+			filterBtns.forEach(b => b.classList.remove('active', 'bg-slate-900', 'text-white'));
+			btn.classList.add('active', 'bg-slate-900', 'text-white');
 			performFilter();
+		});
+	});
+
+	// 2. Interactive Rating Logic
+	cards.forEach(card => {
+		const toggleBtn = card.querySelector('.rate-toggle-btn');
+		const panel = card.querySelector('.rating-panel') as HTMLElement;
+		const starBtns = card.querySelectorAll('.star-btn');
+		const submitBtn = card.querySelector('.submit-rating-btn');
+		
+		let selections = { punctuality: 5, quality: 5, behavior: 5 };
+
+		toggleBtn?.addEventListener('click', () => panel.classList.toggle('hidden'));
+
+		starBtns.forEach(btn => {
+			btn.addEventListener('click', (e) => {
+				const val = parseInt(btn.getAttribute('data-value') || '5');
+				const metric = btn.parentElement?.getAttribute('data-metric') as keyof typeof selections;
+				selections[metric] = val;
+				
+				// Visual update
+				btn.parentElement?.querySelectorAll('.star-btn').forEach(b => b.classList.remove('bg-orange-500', 'text-white'));
+				btn.classList.add('bg-orange-500', 'text-white');
+			});
+		});
+
+		submitBtn?.addEventListener('click', async () => {
+			const id = card.getAttribute('data-id');
+			const count = parseInt(card.getAttribute('data-count') || '1');
+			
+			// New Average Calculation
+			const calc = (oldAvg: number, newVal: number) => parseFloat(((oldAvg * count + newVal) / (count + 1)).toFixed(1));
+
+			const newP = calc(parseFloat(card.getAttribute('data-p') || '5'), selections.punctuality);
+			const newQ = calc(parseFloat(card.getAttribute('data-q') || '5'), selections.quality);
+			const newB = calc(parseFloat(card.getAttribute('data-b') || '5'), selections.behavior);
+			const newTotal = parseFloat(((newP + newQ + newB) / 3).toFixed(1));
+
+			const { error } = await supabase
+				.from('providers')
+				.update({
+					score_punctuality: newP,
+					score_quality: newQ,
+					score_behavior: newB,
+					rating: newTotal,
+					review_count: count + 1
+				})
+				.eq('id', id);
+
+			if (!error) {
+				alert("Rating submitted! Refreshing page...");
+				window.location.reload();
+			} else {
+				alert("Error: " + error.message);
+			}
 		});
 	});
 </script>
 
 <style is:global>
 	@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-	body { 
-		background-color: #fbfcfd;
-		font-family: 'Inter', sans-serif;
-	}
+	body { background-color: #fbfcfd; font-family: 'Inter', sans-serif; }
 	.no-scrollbar::-webkit-scrollbar { display: none; }
-	.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 </style>
