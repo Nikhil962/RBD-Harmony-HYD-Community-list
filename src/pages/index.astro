@@ -7,12 +7,10 @@ const { data: providers } = await supabase
   .select('*')
   .order('name', { ascending: true });
 
-// Extract unique categories
 const allCategories = [...new Set(providers?.flatMap(p => p.categories || []))]
   .filter(cat => cat && cat.trim() !== '')
   .sort();
 
-// Extract unique languages
 const allLanguages = [...new Set(providers?.flatMap(p => p.languages || []))]
   .filter(lang => lang && lang.trim() !== '')
   .sort();
@@ -34,7 +32,7 @@ const allLanguages = [...new Set(providers?.flatMap(p => p.languages || []))]
 		<!-- Management Action Bar -->
 		<div class="grid grid-cols-2 gap-3 mb-8">
 			<a 
-				href="mailto:lihkinksnikhil@gmail.com?subject=RBD%20Harmony%20-%20Add%20Contact&body=Please%20add:%0D%0AName:%0D%0APhone:%0D%0ACategories:%0D%0ALanguages:%0D%0ADescription:" 
+				href="mailto:lihkinksnikhil@gmail.com?subject=RBD%20Harmony%20-%20Add%20Contact&body=Please%20add:%0D%0AName:%0D%0AGender%20(Male/Female):%0D%0APhone:%0D%0ACategories:%0D%0ALanguages:%0D%0ADescribe%20in%20what%20he/she%20is%20good%20at:" 
 				class="group flex flex-col items-center justify-center bg-zinc-900 border border-zinc-800 p-4 rounded-2xl hover:border-orange-500/50 transition-all active:scale-95 shadow-xl"
 			>
 				<span class="text-orange-500 mb-1 group-hover:scale-110 transition-transform">
@@ -90,7 +88,7 @@ const allLanguages = [...new Set(providers?.flatMap(p => p.languages || []))]
 				</div>
 			</div>
 
-			<!-- Sort & Reset Controls -->
+			<!-- Sort & Reset -->
 			<div class="flex gap-2 pt-2">
 				<select id="sortSelect" class="flex-1 bg-zinc-900 text-zinc-400 text-[10px] font-black uppercase tracking-widest border border-zinc-800 rounded-2xl px-4 py-3 outline-none focus:ring-1 focus:ring-orange-500 transition-all cursor-pointer">
 					<option value="name-asc">Sort: A-Z</option>
@@ -98,12 +96,7 @@ const allLanguages = [...new Set(providers?.flatMap(p => p.languages || []))]
 					<option value="newest">Recently Added</option>
 				</select>
 				
-				<button 
-					id="resetBtn"
-					class="bg-zinc-900 border border-zinc-800 text-zinc-500 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:text-white hover:border-zinc-600 transition-all active:scale-95"
-				>
-					Reset
-				</button>
+				<button id="resetBtn" class="bg-zinc-900 border border-zinc-800 text-zinc-500 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:text-white hover:border-zinc-600 transition-all active:scale-95">Reset</button>
 			</div>
 		</div>
 
@@ -120,12 +113,22 @@ const allLanguages = [...new Set(providers?.flatMap(p => p.languages || []))]
 					
 					<div class="flex-1 pr-4">
 						<div class="flex items-center gap-3 mb-2">
-							<h2 class="text-xl font-bold text-white tracking-tight group-hover:text-orange-500 transition-colors uppercase italic">{person.name}</h2>
-							{person.is_verified && (
-								<div class="text-blue-500 bg-blue-500/10 p-1 rounded-full border border-blue-500/20">
-									<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-								</div>
-							)}
+							<h2 class="text-xl font-bold text-white tracking-tight group-hover:text-orange-500 transition-colors uppercase italic">
+								{person.name}
+							</h2>
+							<!-- Gender & Verified Row -->
+							<div class="flex gap-1.5 items-center">
+								{person.gender && (
+									<span class="text-[8px] font-black px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-500 border border-zinc-700 uppercase tracking-tighter">
+										{person.gender}
+									</span>
+								)}
+								{person.is_verified && (
+									<div class="text-blue-500 bg-blue-500/10 p-1 rounded-full border border-blue-500/20">
+										<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+									</div>
+								)}
+							</div>
 						</div>
 						
 						<div class="flex flex-wrap gap-2 mb-3">
@@ -209,29 +212,13 @@ const allLanguages = [...new Set(providers?.flatMap(p => p.languages || []))]
 		visibleCards.forEach(card => grid?.appendChild(card));
 	}
 
-	// RESET LOGIC
 	resetBtn?.addEventListener('click', () => {
 		searchInput.value = '';
 		sortSelect.value = 'name-asc';
-		
-		// Reset Categories
-		document.querySelectorAll('.category-btn').forEach(b => {
-			b.classList.remove(...orangeActive);
-			b.classList.add(...inactive);
-		});
-		const catAll = document.querySelector('.category-btn[data-value="all"]');
-		catAll?.classList.add(...orangeActive);
-		catAll?.classList.remove(...inactive);
-		
-		// Reset Languages
-		document.querySelectorAll('.language-btn').forEach(b => {
-			b.classList.remove(...blueActive);
-			b.classList.add(...inactive);
-		});
-		const langAll = document.querySelector('.language-btn[data-value="all"]');
-		langAll?.classList.add(...blueActive);
-		langAll?.classList.remove(...inactive);
-
+		document.querySelectorAll('.category-btn').forEach(b => { b.classList.remove(...orangeActive); b.classList.add(...inactive); });
+		document.querySelector('.category-btn[data-value="all"]')?.classList.add(...orangeActive);
+		document.querySelectorAll('.language-btn').forEach(b => { b.classList.remove(...blueActive); b.classList.add(...inactive); });
+		document.querySelector('.language-btn[data-value="all"]')?.classList.add(...blueActive);
 		applyAll();
 	});
 
