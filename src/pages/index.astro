@@ -13,13 +13,12 @@ const allCategories = [...new Set(providers?.flatMap(p => p.categories || []))]
 ---
 
 <Layout title="RBD Harmony | Secure Directory">
-	<!-- Dark Hero Section -->
 	<div class="relative h-[30vh] min-h-[250px] flex items-center justify-center overflow-hidden bg-zinc-950">
 		<img src="/community.jpg" class="absolute inset-0 w-full h-full object-cover opacity-30 grayscale" alt="RBD Harmony" />
 		<div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-transparent"></div>
 		<div class="relative z-10 text-center px-4">
-			<h1 class="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase italic">RBD HARMONY</h1>
-			<p class="text-orange-500 font-bold tracking-[0.4em] text-[10px] mt-2 uppercase">Gated Community Directory</p>
+			<h1 class="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase italic text-center">RBD HARMONY</h1>
+			<p class="text-orange-500 font-bold tracking-[0.4em] text-[10px] mt-2 uppercase text-center">Gated Community Directory</p>
 		</div>
 	</div>
 
@@ -55,7 +54,6 @@ const allCategories = [...new Set(providers?.flatMap(p => p.categories || []))]
 			</div>
 		</div>
 
-		<!-- Contacts Grid -->
 		<div class="grid gap-4" id="contactsGrid">
 			{providers?.map((person) => (
 				<div class="contact-card group bg-zinc-900 border border-white/5 rounded-3xl p-6 flex justify-between items-center transition-all duration-300 hover:bg-zinc-800/50 hover:border-orange-500/30" 
@@ -95,9 +93,9 @@ const allCategories = [...new Set(providers?.flatMap(p => p.categories || []))]
 		</div>
 
 		<footer class="mt-20 py-10 text-center border-t border-white/5">
-			<div class="flex justify-center gap-6 mb-6">
-				<a href="mailto:lihkinksnikhil@gmail.com?subject=RBD Harmony - Add New" class="text-[10px] font-black text-zinc-500 hover:text-orange-500 uppercase tracking-widest transition-colors">+ Request Add</a>
-				<a href="mailto:lihkinksnikhil@gmail.com?subject=RBD Harmony - Remove" class="text-[10px] font-black text-zinc-500 hover:text-orange-500 uppercase tracking-widest transition-colors">- Request Remove</a>
+			<div class="flex justify-center gap-6 mb-6 font-bold">
+				<a href="mailto:lihkinksnikhil@gmail.com?subject=RBD%20Harmony%20-%20Request%20to%20Add" class="text-[10px] text-zinc-500 hover:text-orange-500 uppercase tracking-widest transition-colors">+ Add</a>
+				<a href="mailto:lihkinksnikhil@gmail.com?subject=RBD%20Harmony%20-%20Request%20to%20Remove" class="text-[10px] text-zinc-500 hover:text-orange-500 uppercase tracking-widest transition-colors">- Remove</a>
 			</div>
 			<p class="text-zinc-700 text-[9px] font-black uppercase tracking-[0.5em]">RBD Harmony • Engineered by Nikhil</p>
 		</footer>
@@ -111,32 +109,39 @@ const allCategories = [...new Set(providers?.flatMap(p => p.categories || []))]
 	const grid = document.getElementById('contactsGrid');
 	const cards = Array.from(document.querySelectorAll('.contact-card')) as HTMLElement[];
 
-	// Define the visual states
+	// UI States
 	const activeClasses = ['bg-orange-600', 'text-white', 'border-transparent', 'active', 'shadow-lg', 'shadow-orange-900/20'];
 	const inactiveClasses = ['bg-zinc-900', 'text-zinc-400', 'border-zinc-800'];
 
 	function applySearchFilterSort() {
 		const searchTerm = searchInput.value.toLowerCase();
-		const activeBtn = document.querySelector('.filter-btn.active');
-		const activeCategory = activeBtn?.getAttribute('data-category');
 		const sortBy = sortSelect.value;
+		
+		// Find all active categories (excluding 'all')
+		const activeCategories = Array.from(document.querySelectorAll('.filter-btn.active'))
+			.map(btn => btn.getAttribute('data-category'))
+			.filter(cat => cat !== 'all');
 
 		const visibleCards = cards.filter(card => {
 			const name = card.getAttribute('data-name') || '';
 			const categories = card.getAttribute('data-categories')?.split(',') || [];
 			
 			const matchesSearch = name.includes(searchTerm) || categories.some(c => c.toLowerCase().includes(searchTerm));
-			const matchesCategory = activeCategory === 'all' || categories.includes(activeCategory);
+			
+			// If no specific categories selected (or 'All' is active), match everything
+			// Otherwise, check if the person has ANY of the selected categories
+			const matchesCategory = activeCategories.length === 0 || 
+									categories.some(cat => activeCategories.includes(cat));
 			
 			const isVisible = matchesSearch && matchesCategory;
 			card.style.display = isVisible ? 'flex' : 'none';
 			return isVisible;
 		});
 
+		// Sorting
 		visibleCards.sort((a, b) => {
 			const nameA = a.getAttribute('data-name')!;
 			const nameB = b.getAttribute('data-name')!;
-			
 			if (sortBy === 'name-asc') return nameA.localeCompare(nameB);
 			if (sortBy === 'name-desc') return nameB.localeCompare(nameA);
 			if (sortBy === 'newest') return new Date(b.getAttribute('data-date')!).getTime() - new Date(a.getAttribute('data-date')!).getTime();
@@ -151,14 +156,38 @@ const allCategories = [...new Set(providers?.flatMap(p => p.categories || []))]
 	
 	filterBtns.forEach(btn => {
 		btn.addEventListener('click', () => {
-			// Clear all buttons
-			filterBtns.forEach(b => {
-				b.classList.remove(...activeClasses);
-				b.classList.add(...inactiveClasses);
-			});
-			// Highight current button
-			btn.classList.add(...activeClasses);
-			btn.classList.remove(...inactiveClasses);
+			const category = btn.getAttribute('data-category');
+			const allBtn = document.querySelector('.filter-btn[data-category="all"]');
+
+			if (category === 'all') {
+				// Reset all other buttons
+				filterBtns.forEach(b => {
+					b.classList.remove(...activeClasses);
+					b.classList.add(...inactiveClasses);
+				});
+				btn.classList.add(...activeClasses);
+				btn.classList.remove(...inactiveClasses);
+			} else {
+				// Toggle current button
+				const isActive = btn.classList.contains('active');
+				if (isActive) {
+					btn.classList.remove(...activeClasses);
+					btn.classList.add(...inactiveClasses);
+				} else {
+					btn.classList.add(...activeClasses);
+					btn.classList.remove(...inactiveClasses);
+					// Turn off "All" button
+					allBtn?.classList.remove(...activeClasses);
+					allBtn?.classList.add(...inactiveClasses);
+				}
+				
+				// If NO buttons are active now, turn "All" back on
+				const anyActive = document.querySelectorAll('.filter-btn.active').length > 0;
+				if (!anyActive) {
+					allBtn?.classList.add(...activeClasses);
+					allBtn?.classList.remove(...inactiveClasses);
+				}
+			}
 			
 			applySearchFilterSort();
 		});
@@ -173,6 +202,4 @@ const allCategories = [...new Set(providers?.flatMap(p => p.categories || []))]
 		color-scheme: dark;
 	}
 	.no-scrollbar::-webkit-scrollbar { display: none; }
-    /* Fix for button active state persistence */
-    .filter-btn.active { pointer-events: none; }
 </style>
