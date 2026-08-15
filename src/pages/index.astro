@@ -12,198 +12,159 @@ const allCategories = [...new Set(providers?.flatMap(p => p.categories || []))]
   .sort();
 ---
 
-<Layout title="RBD Harmony | Help Directory">
-	
-	<!-- Hero Section -->
-	<div class="relative h-[30vh] min-h-[300px] flex items-center justify-center overflow-hidden">
-		<img src="/community.jpg" class="absolute inset-0 w-full h-full object-cover" alt="RBD Harmony" />
-		<div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent"></div>
+<Layout title="RBD Harmony | Secure Directory">
+	<!-- Dark Hero Section -->
+	<div class="relative h-[30vh] min-h-[250px] flex items-center justify-center overflow-hidden bg-zinc-950">
+		<img src="/community.jpg" class="absolute inset-0 w-full h-full object-cover opacity-30 grayscale" alt="RBD Harmony" />
+		<div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-transparent"></div>
 		<div class="relative z-10 text-center px-4">
-			<h1 class="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase">RBD Harmony</h1>
-			<p class="text-orange-400 font-bold tracking-[0.3em] text-[10px] mt-2 uppercase">Community Help Directory</p>
+			<h1 class="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase italic">RBD HARMONY</h1>
+			<p class="text-orange-500 font-bold tracking-[0.4em] text-[10px] mt-2 uppercase">Gated Community Directory</p>
 		</div>
 	</div>
 
-	<main class="max-w-2xl mx-auto px-4 -mt-10 relative z-20 pb-20 font-sans">
+	<main class="max-w-2xl mx-auto px-4 -mt-8 relative z-20 pb-20 font-sans">
 		
-		<!-- Search Bar -->
-		<div class="bg-white p-2 rounded-[2rem] shadow-2xl ring-1 ring-black/5 mb-6">
-			<input type="text" id="searchInput" placeholder="Search for help..." class="w-full p-4 rounded-2xl outline-none text-lg text-slate-800 placeholder-slate-400" />
-		</div>
+		<!-- Search & Sort Row -->
+		<div class="flex flex-col gap-3 mb-6">
+			<div class="bg-zinc-900 p-1.5 rounded-2xl shadow-2xl ring-1 ring-white/10 flex items-center">
+				<div class="pl-4 text-zinc-500">
+					<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+				</div>
+				<input 
+					type="text" 
+					id="searchInput" 
+					placeholder="Try searching 'Plumber', 'Maid', or 'Ramesh'..." 
+					class="w-full p-4 bg-transparent border-none outline-none text-white placeholder-zinc-600 font-medium" 
+				/>
+			</div>
 
-		<!-- Category Filter -->
-		<div class="flex gap-2 overflow-x-auto pb-6 no-scrollbar mb-4" id="filterContainer">
-			<button class="filter-btn active bg-slate-900 text-white px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shrink-0" data-category="all">All</button>
-			{allCategories.map(cat => (
-				<button class="filter-btn bg-white border border-slate-200 text-slate-500 px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:border-orange-300 shrink-0" data-category={cat}>{cat}</button>
-			))}
+			<div class="flex justify-between items-center px-1">
+				<div class="flex gap-2 overflow-x-auto no-scrollbar py-2" id="filterContainer">
+					<button class="filter-btn active bg-orange-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all shrink-0" data-category="all">All</button>
+					{allCategories.map(cat => (
+						<button class="filter-btn bg-zinc-900 border border-zinc-800 text-zinc-400 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:border-orange-500 transition-all shrink-0" data-category={cat}>{cat}</button>
+					))}
+				</div>
+				
+				<select id="sortSelect" class="bg-zinc-900 text-zinc-400 text-[10px] font-black uppercase tracking-widest border border-zinc-800 rounded-lg px-3 py-2 outline-none focus:border-orange-500 transition-all">
+					<option value="name-asc">Sort: A-Z</option>
+					<option value="verified">Verified First</option>
+					<option value="newest">Recently Added</option>
+				</select>
+			</div>
 		</div>
 
 		<!-- Contacts Grid -->
-		<div class="grid gap-6" id="contactsGrid">
+		<div class="grid gap-4" id="contactsGrid">
 			{providers?.map((person) => (
-				<div class="contact-card group bg-white border border-slate-100 rounded-[2.5rem] p-6 shadow-sm hover:shadow-xl transition-all duration-500" 
+				<div class="contact-card group bg-zinc-900 border border-white/5 rounded-3xl p-6 flex justify-between items-center transition-all duration-300 hover:bg-zinc-800/50 hover:border-orange-500/30" 
 					 data-id={person.id}
 					 data-name={person.name.toLowerCase()} 
 					 data-categories={person.categories?.join(',')}
-					 data-count={person.review_count}
-					 data-p={person.score_punctuality}
-					 data-q={person.score_quality}
-					 data-b={person.score_behavior}>
+					 data-verified={person.is_verified ? "1" : "0"}
+					 data-date={person.created_at}>
 					
-					<div class="flex justify-between items-start mb-6">
-						<div class="flex-1">
-							<div class="flex items-center gap-2 mb-1">
-								<h2 class="text-2xl font-black text-slate-800 tracking-tight">{person.name}</h2>
-								{person.is_verified && <span class="text-blue-500 bg-blue-50 px-2 py-0.5 rounded-full text-[9px] font-black tracking-tighter border border-blue-100 uppercase font-sans">Verified</span>}
-							</div>
-							<div class="flex flex-wrap gap-2">
-								{person.categories?.map((cat: string) => (
-									<span class="text-orange-500 font-black text-[9px] uppercase tracking-widest">{cat}</span>
-								))}
-							</div>
-						</div>
-						<a href={`tel:${person.phone}`} class="bg-green-500 text-white p-4 rounded-2xl shadow-lg shadow-green-100 active:scale-90">
-							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-						</a>
-					</div>
-
-					<!-- Ratings Display -->
-					<div class="grid grid-cols-3 gap-4 mb-6">
-						{[
-							{ label: 'Punctuality', key: 'score_punctuality', value: person.score_punctuality },
-							{ label: 'Quality', key: 'score_quality', value: person.score_quality },
-							{ label: 'Behavior', key: 'score_behavior', value: person.score_behavior }
-						].map((m) => (
-							<div class="text-center">
-								<p class="text-[8px] font-black uppercase text-slate-400 mb-1">{m.label}</p>
-								<p class="text-sm font-black text-slate-800 tracking-tighter">⭐ {m.value}</p>
-							</div>
-						))}
-					</div>
-
-					<!-- Integrated Rating Form -->
-					<button class="w-full py-3 rounded-2xl bg-slate-50 text-slate-500 text-[10px] font-black uppercase tracking-widest hover:bg-orange-50 hover:text-orange-600 transition-all rate-toggle-btn">
-						Rate this service
-					</button>
-
-					<div class="rating-panel hidden mt-6 p-4 bg-orange-50 rounded-3xl border border-orange-100">
-						<p class="text-[10px] font-black text-orange-600 uppercase tracking-widest mb-4 text-center">Submit your rating (1-5)</p>
-						<div class="space-y-4">
-							{['Punctuality', 'Quality', 'Behavior'].map((label) => (
-								<div class="flex justify-between items-center">
-									<span class="text-[10px] font-bold text-slate-600 uppercase">{label}</span>
-									<div class="flex gap-1 rating-stars" data-metric={label.toLowerCase()}>
-										{[1, 2, 3, 4, 5].map((num) => (
-											<button class="w-7 h-7 rounded-lg bg-white border border-orange-200 text-xs font-bold text-orange-400 hover:bg-orange-500 hover:text-white transition-all star-btn" data-value={num}>{num}</button>
-										))}
-									</div>
+					<div class="flex-1">
+						<div class="flex items-center gap-2 mb-2">
+							<h2 class="text-xl font-bold text-white tracking-tight group-hover:text-orange-500 transition-colors">{person.name}</h2>
+							{person.is_verified && (
+								<div class="flex items-center bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded-full text-[8px] font-black tracking-tighter border border-blue-500/20 uppercase">
+									<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><polyline points="20 6 9 17 4 12"></polyline></svg>
+									Verified
 								</div>
+							)}
+						</div>
+						
+						<div class="flex flex-wrap gap-2">
+							{person.categories?.map((cat: string) => (
+								<span class="text-orange-500/80 font-black text-[9px] uppercase tracking-[0.1em]">{cat}</span>
 							))}
 						</div>
-						<button class="w-full mt-6 bg-orange-500 text-white py-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg submit-rating-btn">Submit to Community</button>
+
+						<div class="flex gap-3 mt-4">
+							{person.languages?.map((lang: string) => (
+								<span class="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">{lang}</span>
+							))}
+						</div>
 					</div>
+					
+					<a href={`tel:${person.phone}`} class="bg-blue-600 hover:bg-orange-600 text-white p-5 rounded-2xl shadow-2xl shadow-blue-900/20 transition-all active:scale-90">
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+					</a>
 				</div>
 			))}
 		</div>
 
-		<footer class="mt-20 py-10 text-center border-t border-slate-100">
-			<div class="flex justify-center gap-4 mb-4">
-				<a href="mailto:lihkinksnikhil@gmail.com?subject=RBD Harmony - Add New" class="text-[10px] font-black text-slate-400 uppercase tracking-widest">+ Add New</a>
-				<a href="mailto:lihkinksnikhil@gmail.com?subject=RBD Harmony - Remove" class="text-[10px] font-black text-slate-400 uppercase tracking-widest">- Remove</a>
+		<footer class="mt-20 py-10 text-center border-t border-white/5">
+			<div class="flex justify-center gap-6 mb-6">
+				<a href="mailto:lihkinksnikhil@gmail.com?subject=RBD Harmony - Add New" class="text-[10px] font-black text-zinc-500 hover:text-orange-500 uppercase tracking-widest transition-colors">+ Request Add</a>
+				<a href="mailto:lihkinksnikhil@gmail.com?subject=RBD Harmony - Remove" class="text-[10px] font-black text-zinc-500 hover:text-orange-500 uppercase tracking-widest transition-colors">- Request Remove</a>
 			</div>
-			<p class="text-slate-300 text-[9px] font-black uppercase tracking-[0.5em]">RBD Harmony • Engineered by Nikhil</p>
+			<p class="text-zinc-700 text-[9px] font-black uppercase tracking-[0.5em]">RBD Harmony • Engineered by Nikhil</p>
 		</footer>
 	</main>
 </Layout>
 
 <script>
-	import { supabase } from '../lib/supabase';
-
-	// 1. Search & Filter
 	const searchInput = document.getElementById('searchInput') as HTMLInputElement;
+	const sortSelect = document.getElementById('sortSelect') as HTMLSelectElement;
 	const filterBtns = document.querySelectorAll('.filter-btn');
-	const cards = document.querySelectorAll('.contact-card') as NodeListOf<HTMLElement>;
+	const grid = document.getElementById('contactsGrid');
+	const cards = Array.from(document.querySelectorAll('.contact-card')) as HTMLElement[];
 
-	function performFilter() {
+	function applySearchFilterSort() {
 		const searchTerm = searchInput.value.toLowerCase();
-		const activeBtn = document.querySelector('.filter-btn.active');
-		const activeCategory = activeBtn?.getAttribute('data-category');
-		cards.forEach(card => {
+		const activeCategory = document.querySelector('.filter-btn.active')?.getAttribute('data-category');
+		const sortBy = sortSelect.value;
+
+		// 1. Filtering Logic
+		const visibleCards = cards.filter(card => {
 			const name = card.getAttribute('data-name') || '';
 			const categories = card.getAttribute('data-categories')?.split(',') || [];
+			
 			const matchesSearch = name.includes(searchTerm) || categories.some(c => c.toLowerCase().includes(searchTerm));
 			const matchesCategory = activeCategory === 'all' || categories.includes(activeCategory);
-			card.style.display = (matchesSearch && matchesCategory) ? 'block' : 'none';
+			
+			const isVisible = matchesSearch && matchesCategory;
+			card.style.display = isVisible ? 'flex' : 'none';
+			return isVisible;
 		});
+
+		// 2. Sorting Logic
+		visibleCards.sort((a, b) => {
+			if (sortBy === 'name-asc') {
+				return a.getAttribute('data-name')!.localeCompare(b.getAttribute('data-name')!);
+			} else if (sortBy === 'verified') {
+				return b.getAttribute('data-verified')!.localeCompare(a.getAttribute('data-verified')!);
+			} else if (sortBy === 'newest') {
+				return new Date(b.getAttribute('data-date')!).getTime() - new Date(a.getAttribute('data-date')!).getTime();
+			}
+			return 0;
+		});
+
+		// 3. Re-append in sorted order
+		visibleCards.forEach(card => grid?.appendChild(card));
 	}
-	searchInput?.addEventListener('input', performFilter);
+
+	searchInput?.addEventListener('input', applySearchFilterSort);
+	sortSelect?.addEventListener('change', applySearchFilterSort);
+	
 	filterBtns.forEach(btn => {
 		btn.addEventListener('click', () => {
-			filterBtns.forEach(b => b.classList.remove('active', 'bg-slate-900', 'text-white'));
-			btn.classList.add('active', 'bg-slate-900', 'text-white');
-			performFilter();
-		});
-	});
-
-	// 2. Interactive Rating Logic
-	cards.forEach(card => {
-		const toggleBtn = card.querySelector('.rate-toggle-btn');
-		const panel = card.querySelector('.rating-panel') as HTMLElement;
-		const starBtns = card.querySelectorAll('.star-btn');
-		const submitBtn = card.querySelector('.submit-rating-btn');
-		
-		let selections = { punctuality: 5, quality: 5, behavior: 5 };
-
-		toggleBtn?.addEventListener('click', () => panel.classList.toggle('hidden'));
-
-		starBtns.forEach(btn => {
-			btn.addEventListener('click', (e) => {
-				const val = parseInt(btn.getAttribute('data-value') || '5');
-				const metric = btn.parentElement?.getAttribute('data-metric') as keyof typeof selections;
-				selections[metric] = val;
-				
-				// Visual update
-				btn.parentElement?.querySelectorAll('.star-btn').forEach(b => b.classList.remove('bg-orange-500', 'text-white'));
-				btn.classList.add('bg-orange-500', 'text-white');
-			});
-		});
-
-		submitBtn?.addEventListener('click', async () => {
-			const id = card.getAttribute('data-id');
-			const count = parseInt(card.getAttribute('data-count') || '1');
-			
-			// New Average Calculation
-			const calc = (oldAvg: number, newVal: number) => parseFloat(((oldAvg * count + newVal) / (count + 1)).toFixed(1));
-
-			const newP = calc(parseFloat(card.getAttribute('data-p') || '5'), selections.punctuality);
-			const newQ = calc(parseFloat(card.getAttribute('data-q') || '5'), selections.quality);
-			const newB = calc(parseFloat(card.getAttribute('data-b') || '5'), selections.behavior);
-			const newTotal = parseFloat(((newP + newQ + newB) / 3).toFixed(1));
-
-			const { error } = await supabase
-				.from('providers')
-				.update({
-					score_punctuality: newP,
-					score_quality: newQ,
-					score_behavior: newB,
-					rating: newTotal,
-					review_count: count + 1
-				})
-				.eq('id', id);
-
-			if (!error) {
-				alert("Rating submitted! Refreshing page...");
-				window.location.reload();
-			} else {
-				alert("Error: " + error.message);
-			}
+			filterBtns.forEach(b => b.classList.remove('active', 'bg-orange-600', 'text-white'));
+			btn.classList.add('active', 'bg-orange-600', 'text-white');
+			applySearchFilterSort();
 		});
 	});
 </script>
 
 <style is:global>
 	@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-	body { background-color: #fbfcfd; font-family: 'Inter', sans-serif; }
+	body { 
+		background-color: #09090b; /* Zinc 950 */
+		font-family: 'Inter', sans-serif;
+		color-scheme: dark;
+	}
 	.no-scrollbar::-webkit-scrollbar { display: none; }
 </style>
