@@ -10,14 +10,14 @@ const { data: providers } = await supabase
 const allCategories = [...new Set(providers?.flatMap(p => p.categories || []))].filter(Boolean).sort();
 const allLanguages = [...new Set(providers?.flatMap(p => p.languages || []))].filter(Boolean).sort();
 
-// Stats for the sidebar
+// Data for side display
 const verifiedCount = providers?.filter(p => p.is_verified).length || 0;
 const totalHelpers = providers?.length || 0;
 ---
 
 <Layout title="RBD Harmony | Secure Directory">
 	
-	<!-- Background Decorative Elements (Desktop Only) -->
+	<!-- Background Decorative Aura (Desktop Only) -->
 	<div class="fixed inset-0 pointer-events-none overflow-hidden z-0 opacity-40">
 		<div class="absolute top-[-10%] -left-[10%] w-[40%] h-[40%] bg-orange-600/10 blur-[120px] rounded-full"></div>
 		<div class="absolute bottom-[-10%] -right-[10%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full"></div>
@@ -34,37 +34,32 @@ const totalHelpers = providers?.length || 0;
 		</div>
 	</div>
 
-	<!-- Main 3-Column Layout -->
+	<!-- Main Layout -->
 	<div class="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 px-4 lg:px-8 -mt-8 relative z-20 pb-20 font-sans">
 		
-		<!-- LEFT SIDEBAR: Community Pulse (Visible on Desktop) -->
-		<aside class="hidden lg:block lg:col-span-3 space-y-6 sticky top-6 self-start">
-			<div class="bg-zinc-900/50 border border-white/5 rounded-3xl p-6 backdrop-blur-md">
-				<p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-4">Community Pulse</p>
-				<div class="space-y-4">
+		<!-- LEFT SIDEBAR: Stats -->
+		<aside class="hidden lg:block lg:col-span-3 sticky top-6 self-start">
+			<div class="bg-zinc-900/50 border border-white/5 rounded-3xl p-8 backdrop-blur-md">
+				<p class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-6">Database Stats</p>
+				<div class="space-y-6">
 					<div>
-						<p class="text-2xl font-black text-white leading-none">{totalHelpers}</p>
-						<p class="text-[9px] text-zinc-500 uppercase font-bold tracking-widest mt-1">Total Helpers</p>
+						<p class="text-4xl font-black text-white leading-none">{totalHelpers}</p>
+						<p class="text-[10px] text-zinc-500 uppercase font-bold tracking-widest mt-2">Active Contacts</p>
 					</div>
-					<div class="pt-4 border-t border-white/5">
-						<p class="text-2xl font-black text-blue-500 leading-none">{verifiedCount}</p>
-						<p class="text-[9px] text-zinc-500 uppercase font-bold tracking-widest mt-1">Verified Pros</p>
+					<div class="pt-6 border-t border-white/5">
+						<p class="text-4xl font-black text-blue-500 leading-none">{verifiedCount}</p>
+						<p class="text-[10px] text-zinc-500 uppercase font-bold tracking-widest mt-2">Verified Pros</p>
 					</div>
 				</div>
 			</div>
-			
-			<div class="bg-orange-600/5 border border-orange-500/10 rounded-3xl p-6">
-				<p class="text-[10px] font-black text-orange-500 uppercase tracking-widest mb-2">Notice</p>
-				<p class="text-xs text-zinc-400 leading-relaxed font-medium">Please verify ID cards at the gate before allowing entry.</p>
-			</div>
 		</aside>
 
-		<!-- CENTER: Search & List -->
+		<!-- CENTER: Main Interaction Area -->
 		<main class="lg:col-span-6 space-y-6">
 			
 			<!-- Management Action Bar -->
 			<div class="grid grid-cols-2 gap-3">
-				<a href="mailto:lihkinksnikhil@gmail.com?subject=RBD%20Harmony%20-%20Add%20Contact&body=Name:%0D%0AGender:%0D%0APhone:%0D%0ACategories:%0D%0ALanguages:%0D%0ADescription:" class="group flex flex-col items-center justify-center bg-zinc-900 border border-zinc-800 p-4 rounded-2xl hover:border-orange-500/50 transition-all active:scale-95 shadow-xl">
+				<a href="mailto:lihkinksnikhil@gmail.com?subject=RBD%20Harmony%20-%20Add%20Contact&body=Please%20add:%0D%0AName:%0D%0AGender:%0D%0APhone:%0D%0ACategories:%0D%0ALanguages:%0D%0ADescribe%20in%20what%20he/she%20is%20good%20at:" class="group flex flex-col items-center justify-center bg-zinc-900 border border-zinc-800 p-4 rounded-2xl hover:border-orange-500/50 transition-all active:scale-95 shadow-xl">
 					<span class="text-orange-500 mb-1 group-hover:scale-110 transition-transform"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
 					<span class="text-[10px] font-black text-zinc-400 uppercase tracking-widest text-center">Add Contact</span>
 				</a>
@@ -80,7 +75,7 @@ const totalHelpers = providers?.length || 0;
 				<input type="text" id="searchInput" placeholder="Search roles, names, keywords..." class="w-full p-4 bg-transparent border-none outline-none text-white placeholder-zinc-600 font-medium" />
 			</div>
 
-			<!-- Filters -->
+			<!-- Filters Group -->
 			<div class="space-y-4">
 				<div id="categoryFilters" class="flex gap-2 overflow-x-auto no-scrollbar py-1">
 					<button class="filter-btn category-btn active bg-orange-600 text-white px-5 py-2 rounded-full text-[10px] font-black uppercase shrink-0" data-type="category" data-value="all">All Work</button>
@@ -89,7 +84,7 @@ const totalHelpers = providers?.length || 0;
 					))}
 				</div>
 				<div id="languageFilters" class="flex gap-2 overflow-x-auto no-scrollbar py-1">
-					<button class="filter-btn language-btn active bg-blue-600 text-white px-5 py-2 rounded-full text-[10px] font-black uppercase shrink-0" data-type="language" data-value="all">All Langs</button>
+					<button class="filter-btn language-btn active bg-blue-600 text-white px-5 py-2 rounded-full text-[10px] font-black uppercase shrink-0" data-type="language" data-value="all">All Languages</button>
 					{allLanguages.map(lang => (
 						<button class="filter-btn language-btn bg-zinc-900 border border-zinc-800 text-zinc-400 px-5 py-2 rounded-full text-[10px] font-black uppercase shrink-0 hover:text-white" data-type="language" data-value={lang}>{lang}</button>
 					))}
@@ -109,10 +104,10 @@ const totalHelpers = providers?.length || 0;
 				</div>
 			</div>
 
-			<!-- Grid -->
+			<!-- Grid List -->
 			<div class="grid gap-4" id="contactsGrid">
 				{providers?.map((person) => (
-					<div class="contact-card group bg-zinc-900 border border-white/5 rounded-[2rem] p-7 flex justify-between items-center transition-all duration-300 hover:bg-zinc-800/40 hover:border-orange-500/30" 
+					<div class="contact-card group bg-zinc-900 border border-white/5 rounded-[2rem] p-7 flex justify-between items-center transition-all duration-300 hover:bg-zinc-800/40 hover:border-orange-500/30 shadow-sm" 
 						 data-id={person.id} data-name={person.name.toLowerCase()} data-categories={person.categories?.join(',')} data-languages={person.languages?.join(',')}
 						 data-gender={person.gender?.toLowerCase() || ''} data-description={person.description?.toLowerCase() || ''} data-date={person.created_at}>
 						<div class="flex-1 pr-4">
@@ -135,27 +130,21 @@ const totalHelpers = providers?.length || 0;
 			</div>
 		</main>
 
-		<!-- RIGHT SIDEBAR: SOS Connect (Visible on Desktop) -->
-		<aside class="hidden lg:block lg:col-span-3 space-y-4 sticky top-6 self-start">
-			<div class="bg-zinc-900 border border-white/5 rounded-3xl p-6 shadow-2xl">
-				<p class="text-[10px] font-black text-red-500 uppercase tracking-widest mb-4">Emergency Connect</p>
-				<div class="grid gap-3">
-					<a href="tel:000" class="flex items-center justify-between p-3 bg-zinc-950 border border-zinc-800 rounded-xl hover:border-red-500 transition-all group">
-						<span class="text-[10px] font-bold text-zinc-400 uppercase group-hover:text-white">Security Main Gate</span>
-						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-zinc-600 group-hover:text-red-500"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-					</a>
-					<a href="tel:000" class="flex items-center justify-between p-3 bg-zinc-950 border border-zinc-800 rounded-xl hover:border-blue-500 transition-all group">
-						<span class="text-[10px] font-bold text-zinc-400 uppercase group-hover:text-white">Society Office</span>
-						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-zinc-600 group-hover:text-blue-500"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-					</a>
+		<!-- RIGHT SIDEBAR: Community Focus (Visible on Desktop) -->
+		<aside class="hidden lg:block lg:col-span-3 sticky top-6 self-start">
+			<div class="bg-zinc-900/50 border border-white/5 rounded-3xl p-8 backdrop-blur-md text-center">
+				<div class="w-12 h-12 bg-orange-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-orange-500/20">
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-orange-500"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
 				</div>
+				<p class="text-[10px] font-black text-zinc-300 uppercase tracking-[0.2em] mb-2">Community Led</p>
+				<p class="text-xs text-zinc-500 leading-relaxed">This directory is updated by neighbors for neighbors. All data is securely handled.</p>
 			</div>
 		</aside>
 
 	</div>
 
 	<footer class="mt-20 py-10 text-center opacity-40">
-		<p class="text-zinc-600 text-[9px] font-black uppercase tracking-[0.6em]">RBD Harmony • Secure Access Only</p>
+		<p class="text-zinc-600 text-[9px] font-black uppercase tracking-[0.6em]">RBD Harmony • Community Access</p>
 	</footer>
 </Layout>
 
@@ -177,6 +166,7 @@ const totalHelpers = providers?.length || 0;
 	function applyFilters() {
 		const searchTerm = searchInput.value.toLowerCase();
 		const sortBy = sortSelect.value;
+		
 		const activeCats = Array.from(document.querySelectorAll('.category-btn.active')).map(b => b.getAttribute('data-value')).filter(v => v !== 'all');
 		const activeLangs = Array.from(document.querySelectorAll('.language-btn.active')).map(b => b.getAttribute('data-value')).filter(v => v !== 'all');
 		const activeGenders = Array.from(document.querySelectorAll('.gender-btn.active')).map(b => b.getAttribute('data-value')).filter(v => v !== 'all');
