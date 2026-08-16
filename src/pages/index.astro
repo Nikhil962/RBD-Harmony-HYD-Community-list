@@ -7,34 +7,30 @@ const { data: providers } = await supabase
   .select('*')
   .order('name', { ascending: true });
 
-// 1. Dynamic Extraction of All Unique Categories & Languages
 const allCategories = [...new Set(providers?.flatMap(p => p.categories || []))].filter(Boolean).sort();
 const allLanguages = [...new Set(providers?.flatMap(p => p.languages || []))].filter(Boolean).sort();
 
-// 2. Statistics Calculation Logic
+// Stats for sidebar
 const total = providers?.length || 0;
+const verifiedCount = providers?.filter(p => p.is_verified).length || 0;
+const femaleCount = providers?.filter(p => p.gender?.toLowerCase() === 'female').length || 0;
+const maleCount = providers?.filter(p => p.gender?.toLowerCase() === 'male').length || 0;
+const femalePer = (femaleCount + maleCount) > 0 ? (femaleCount / (femaleCount + maleCount)) * 100 : 0;
 
-// Calculate counts for every Category
 const categoryStats = allCategories.map(cat => ({
 	name: cat,
 	count: providers?.filter(p => p.categories?.includes(cat)).length || 0,
 	per: total > 0 ? ((providers?.filter(p => p.categories?.includes(cat)).length || 0) / total) * 100 : 0
 }));
 
-// Calculate counts for every Language
 const languageStats = allLanguages.map(lang => ({
 	name: lang,
 	count: providers?.filter(p => p.languages?.includes(lang)).length || 0,
 	per: total > 0 ? ((providers?.filter(p => p.languages?.includes(lang)).length || 0) / total) * 100 : 0
 }));
-
-// Gender Logic
-const femaleCount = providers?.filter(p => p.gender?.toLowerCase() === 'female').length || 0;
-const maleCount = providers?.filter(p => p.gender?.toLowerCase() === 'male').length || 0;
-const femalePer = (femaleCount + maleCount) > 0 ? (femaleCount / (femaleCount + maleCount)) * 100 : 0;
 ---
 
-<Layout title="RDB Harmony | Secure Directory">
+<Layout title="RBD Harmony | Community Directory">
 	
 	<!-- Background Aura -->
 	<div class="fixed inset-0 pointer-events-none overflow-hidden z-0 opacity-40">
@@ -45,30 +41,29 @@ const femalePer = (femaleCount + maleCount) > 0 ? (femaleCount / (femaleCount + 
 
 	<!-- Hero Header -->
 	<div class="relative h-[22vh] min-h-[200px] flex items-center justify-center overflow-hidden bg-zinc-950">
-		<img src="/community.jpg" class="absolute inset-0 w-full h-full object-cover opacity-20 grayscale" alt="RDB Harmony" />
+		<img src="/community.jpg" class="absolute inset-0 w-full h-full object-cover opacity-20 grayscale" alt="RBD Harmony" />
 		<div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent"></div>
 		<div class="relative z-10 text-center px-4">
-			<h1 class="text-5xl md:text-7xl font-black text-white tracking-tighter uppercase italic text-center drop-shadow-2xl">RDB HARMONY</h1>
+			<h1 class="text-5xl md:text-7xl font-black text-white tracking-tighter uppercase italic text-center drop-shadow-2xl">RBD HARMONY</h1>
 			<p class="text-orange-500 font-bold tracking-[0.4em] text-[10px] mt-2 uppercase text-center font-sans">The Community Directory</p>
 		</div>
 	</div>
 
 	<div class="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 px-4 lg:px-10 -mt-8 relative z-20 pb-20 font-sans">
 		
-		<!-- LEFT SIDEBAR: Full Workforce Mix -->
+		<!-- LEFT SIDEBAR: Workforce Stats -->
 		<aside class="hidden lg:block lg:col-span-3 sticky top-10 self-start space-y-6">
 			<div class="bg-zinc-900/50 border border-white/5 rounded-[2rem] p-8 backdrop-blur-xl">
 				<div class="flex justify-between items-baseline mb-8">
 					<p class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">Workforce Mix</p>
 					<span class="text-2xl font-black text-white">{total}</span>
 				</div>
-				
 				<div class="space-y-6">
 					{categoryStats.map(stat => (
 						<div class="space-y-2">
-							<div class="flex justify-between items-end">
-								<p class="text-[9px] font-black text-zinc-400 uppercase tracking-widest">{stat.name}</p>
-								<p class="text-sm font-black text-orange-500">{stat.count}</p>
+							<div class="flex justify-between items-end text-[9px] uppercase tracking-widest font-black">
+								<p class="text-zinc-400">{stat.name}</p>
+								<p class="text-orange-500">{stat.count}</p>
 							</div>
 							<div class="h-1 w-full bg-zinc-800 rounded-full overflow-hidden">
 								<div class="h-full bg-orange-500 shadow-[0_0_8px_#f97316]" style={`width: ${stat.per}%`}></div>
@@ -83,13 +78,13 @@ const femalePer = (femaleCount + maleCount) > 0 ? (femaleCount / (femaleCount + 
 		<main class="lg:col-span-6 space-y-6">
 			<!-- Action Bar -->
 			<div class="grid grid-cols-2 gap-3">
-				<a href="mailto:lihkinksnikhil@gmail.com?subject=RDB%20Harmony%20-%20Add" class="group flex flex-col items-center justify-center bg-zinc-900 border border-zinc-800 p-5 rounded-3xl hover:border-orange-500/50 transition-all active:scale-95 shadow-xl">
+				<a href="mailto:lihkinksnikhil@gmail.com?subject=RBD%20Harmony%20-%20Add%20Contact&body=Please%20add:%0D%0AName:%0D%0AGender:%0D%0APhone:%0D%0ACategories:%0D%0ALanguages:%0D%0ADescribe%20in%20what%20he/she%20is%20good%20at:" class="group flex flex-col items-center justify-center bg-zinc-900 border border-zinc-800 p-5 rounded-3xl hover:border-orange-500/50 transition-all active:scale-95 shadow-xl">
 					<span class="text-orange-500 mb-1 group-hover:scale-110 transition-transform"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
-					<span class="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Add Contact</span>
+					<span class="text-[10px] font-black text-zinc-400 uppercase tracking-widest text-center font-sans">Add Contact</span>
 				</a>
-				<a href="mailto:lihkinksnikhil@gmail.com?subject=RDB%20Harmony%20-%20Remove" class="group flex flex-col items-center justify-center bg-zinc-900 border border-zinc-800 p-5 rounded-3xl hover:border-red-500/50 transition-all active:scale-95 shadow-xl">
+				<a href="mailto:lihkinksnikhil@gmail.com?subject=RBD%20Harmony%20-%20Remove%20Contact" class="group flex flex-col items-center justify-center bg-zinc-900 border border-zinc-800 p-5 rounded-3xl hover:border-red-500/50 transition-all active:scale-95 shadow-xl">
 					<span class="text-zinc-600 mb-1 group-hover:text-red-500 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
-					<span class="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Remove Contact</span>
+					<span class="text-[10px] font-black text-zinc-400 uppercase tracking-widest text-center font-sans">Remove Contact</span>
 				</a>
 			</div>
 
@@ -100,27 +95,38 @@ const femalePer = (femaleCount + maleCount) > 0 ? (femaleCount / (femaleCount + 
 			</div>
 
 			<!-- Filters -->
-			<div class="space-y-4">
-				<div id="categoryFilters" class="flex gap-2 overflow-x-auto no-scrollbar py-1">
-					<button class="filter-btn category-btn active bg-orange-600 text-white px-5 py-2 rounded-full text-[10px] font-black uppercase shrink-0" data-type="category" data-value="all">All Roles</button>
-					{allCategories.map(cat => (<button class="filter-btn category-btn bg-zinc-900 border border-zinc-800 text-zinc-500 px-5 py-2 rounded-full text-[10px] font-black uppercase shrink-0 hover:text-white" data-type="category" data-value={cat}>{cat}</button>))}
-				</div>
-				<div id="languageFilters" class="flex gap-2 overflow-x-auto no-scrollbar py-1">
-					<button class="filter-btn language-btn active bg-blue-600 text-white px-5 py-2 rounded-full text-[10px] font-black uppercase shrink-0" data-type="language" data-value="all">All Langs</button>
-					{allLanguages.map(lang => (<button class="filter-btn language-btn bg-zinc-900 border border-zinc-800 text-zinc-500 px-5 py-2 rounded-full text-[10px] font-black uppercase shrink-0 hover:text-white" data-type="language" data-value={lang}>{lang}</button>))}
-				</div>
-				<div class="flex gap-2 items-center">
-					<div id="genderFilters" class="flex gap-2">
-						<button class="filter-btn gender-btn active bg-white text-black px-5 py-2 rounded-full text-[10px] font-black uppercase shrink-0" data-type="gender" data-value="all">All Genders</button>
-						<button class="filter-btn gender-btn bg-zinc-900 border border-zinc-800 text-zinc-500 px-5 py-2 rounded-full text-[10px] font-black uppercase shrink-0" data-type="gender" data-value="male">Male</button>
-						<button class="filter-btn gender-btn bg-zinc-900 border border-zinc-800 text-zinc-500 px-5 py-2 rounded-full text-[10px] font-black uppercase shrink-0" data-type="gender" data-value="female">Female</button>
+			<div class="space-y-5">
+				<div>
+					<p class="text-[8px] font-black text-zinc-600 uppercase tracking-[0.2em] px-1 mb-2">Roles</p>
+					<div id="categoryFilters" class="flex gap-2 overflow-x-auto no-scrollbar py-1">
+						<button class="filter-btn category-btn active bg-orange-600 text-white px-5 py-2 rounded-full text-[10px] font-black uppercase shrink-0" data-type="category" data-value="all">All Roles</button>
+						{allCategories.map(cat => (<button class="filter-btn category-btn bg-zinc-900 border border-zinc-800 text-zinc-500 px-5 py-2 rounded-full text-[10px] font-black uppercase shrink-0 hover:text-white" data-type="category" data-value={cat}>{cat}</button>))}
 					</div>
-					<div class="flex-1"></div>
-					<button id="resetBtn" class="bg-zinc-900 border border-zinc-800 text-zinc-500 px-5 py-2 rounded-full text-[10px] font-black uppercase hover:text-red-500 transition-all">Reset</button>
+				</div>
+				<div>
+					<p class="text-[8px] font-black text-zinc-600 uppercase tracking-[0.2em] px-1 mb-2">Languages</p>
+					<div id="languageFilters" class="flex gap-2 overflow-x-auto no-scrollbar py-1">
+						{allLanguages.map(lang => (<button class="filter-btn language-btn bg-zinc-900 border border-zinc-800 text-zinc-500 px-5 py-2 rounded-full text-[10px] font-black uppercase shrink-0 hover:text-white" data-type="language" data-value={lang}>{lang}</button>))}
+					</div>
+				</div>
+				<div>
+					<p class="text-[8px] font-black text-zinc-600 uppercase tracking-[0.2em] px-1 mb-2">Gender</p>
+					<div id="genderFilters" class="flex gap-2">
+						<button class="filter-btn gender-btn bg-zinc-900 border border-zinc-800 text-zinc-500 px-5 py-2 rounded-full text-[10px] font-black uppercase shrink-0 hover:text-white" data-type="gender" data-value="male">Male</button>
+						<button class="filter-btn gender-btn bg-zinc-900 border border-zinc-800 text-zinc-500 px-5 py-2 rounded-full text-[10px] font-black uppercase shrink-0 hover:text-white" data-type="gender" data-value="female">Female</button>
+					</div>
+				</div>
+				<div class="flex gap-2 pt-2">
+					<select id="sortSelect" class="flex-1 bg-zinc-900 text-zinc-400 text-[10px] font-black uppercase tracking-widest border border-zinc-800 rounded-2xl px-4 py-3 outline-none focus:ring-1 focus:ring-orange-500 transition-all cursor-pointer">
+						<option value="name-asc">Sort: A-Z</option>
+						<option value="name-desc">Sort: Z-A</option>
+						<option value="newest">Recently Added</option>
+					</select>
+					<button id="resetBtn" class="bg-zinc-900 border border-zinc-800 text-zinc-500 px-5 py-2 rounded-full text-[10px] font-black uppercase hover:text-white transition-all">Reset</button>
 				</div>
 			</div>
 
-			<!-- Result Cards -->
+			<!-- List -->
 			<div class="grid gap-4" id="contactsGrid">
 				{providers?.map((person) => (
 					<div class="contact-card group bg-zinc-900/60 border border-white/5 rounded-[2.5rem] p-8 flex justify-between items-center transition-all duration-500 hover:bg-zinc-900 hover:border-orange-500/30 shadow-sm" 
@@ -144,37 +150,38 @@ const femalePer = (femaleCount + maleCount) > 0 ? (femaleCount / (femaleCount + 
 					</div>
 				))}
 			</div>
+
+			<!-- SUGGESTIONS FOOTER -->
+			<div class="mt-16 text-center border-t border-white/5 pt-10">
+				<p class="text-zinc-500 text-[10px] font-medium uppercase tracking-widest">
+					For any suggestions on the improvement of website, 
+					<a href="mailto:lihkinksnikhil@gmail.com?subject=RBD%20Harmony%20-%20Website%20Suggestion" class="text-orange-500 hover:text-orange-400 font-black transition-colors block mt-2 underline underline-offset-4 decoration-zinc-800">Please click here to write the mail</a>
+				</p>
+			</div>
 		</main>
 
-		<!-- RIGHT SIDEBAR: Gender & Languages -->
+		<!-- RIGHT SIDEBAR: Demographics -->
 		<aside class="hidden lg:block lg:col-span-3 sticky top-10 self-start space-y-6">
 			<div class="bg-zinc-900/50 border border-white/5 rounded-[2rem] p-8 backdrop-blur-xl">
 				<p class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-8">Demographics</p>
-				
 				<div class="space-y-10">
-					<!-- Gender Split Bar -->
 					<div class="space-y-3">
-						<div class="flex justify-between items-end">
-							<p class="text-[10px] font-black text-white uppercase tracking-widest">Gender Split</p>
-							<div class="flex gap-2 items-baseline">
-								<span class="text-xs font-black text-zinc-500">M {maleCount}</span>
-								<span class="text-xs font-black text-orange-500">F {femaleCount}</span>
-							</div>
+						<div class="flex justify-between items-end text-[10px] font-black text-white uppercase tracking-widest">
+							<p>Gender Ratio</p>
+							<div class="flex gap-2"><span>M {maleCount}</span><span class="text-orange-500">F {femaleCount}</span></div>
 						</div>
 						<div class="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden flex">
 							<div class="h-full bg-zinc-200" style={`width: ${100 - femalePer}%`}></div>
 							<div class="h-full bg-orange-500 shadow-[0_0_8px_#f97316]" style={`width: ${femalePer}%`}></div>
 						</div>
 					</div>
-
-					<!-- Language Distribution -->
 					<div class="space-y-6 pt-6 border-t border-white/5">
-						<p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Language Fluency</p>
+						<p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Fluency Breakdown</p>
 						{languageStats.map(stat => (
 							<div class="space-y-2">
-								<div class="flex justify-between items-end">
-									<p class="text-[9px] font-black text-zinc-400 uppercase tracking-widest">{stat.name}</p>
-									<p class="text-sm font-black text-blue-500">{stat.count}</p>
+								<div class="flex justify-between items-end text-[9px] uppercase tracking-widest font-black">
+									<p class="text-zinc-400">{stat.name}</p>
+									<p class="text-blue-500">{stat.count}</p>
 								</div>
 								<div class="h-1 w-full bg-zinc-800 rounded-full overflow-hidden">
 									<div class="h-full bg-blue-500 shadow-[0_0_8px_#3b82f6]" style={`width: ${stat.per}%`}></div>
@@ -185,12 +192,12 @@ const femalePer = (femaleCount + maleCount) > 0 ? (femaleCount / (femaleCount + 
 				</div>
 			</div>
 		</aside>
-
 	</div>
 </Layout>
 
 <script>
 	const searchInput = document.getElementById('searchInput') as HTMLInputElement;
+	const sortSelect = document.getElementById('sortSelect') as HTMLSelectElement;
 	const resetBtn = document.getElementById('resetBtn');
 	const filterBtns = document.querySelectorAll('.filter-btn');
 	const grid = document.getElementById('contactsGrid');
@@ -205,9 +212,10 @@ const femalePer = (femaleCount + maleCount) > 0 ? (femaleCount / (femaleCount + 
 
 	function applyFilters() {
 		const searchTerm = searchInput.value.toLowerCase();
+		const sortBy = sortSelect.value;
 		const activeCats = Array.from(document.querySelectorAll('.category-btn.active')).map(b => b.getAttribute('data-value')).filter(v => v !== 'all');
-		const activeLangs = Array.from(document.querySelectorAll('.language-btn.active')).map(b => b.getAttribute('data-value')).filter(v => v !== 'all');
-		const activeGenders = Array.from(document.querySelectorAll('.gender-btn.active')).map(b => b.getAttribute('data-value')).filter(v => v !== 'all');
+		const activeLangs = Array.from(document.querySelectorAll('.language-btn.active')).map(b => b.getAttribute('data-value'));
+		const activeGenders = Array.from(document.querySelectorAll('.gender-btn.active')).map(b => b.getAttribute('data-value'));
 
 		cards.forEach(card => {
 			const name = card.getAttribute('data-name') || '', cats = card.getAttribute('data-categories')?.split(',') || [], langs = card.getAttribute('data-languages')?.split(',') || [], gender = card.getAttribute('data-gender') || '', desc = card.getAttribute('data-description') || '';
@@ -217,19 +225,30 @@ const femalePer = (femaleCount + maleCount) > 0 ? (femaleCount / (femaleCount + 
 			const matchGender = activeGenders.length === 0 || activeGenders.includes(gender);
 			card.style.display = (matchSearch && matchCat && matchLang && matchGender) ? 'flex' : 'none';
 		});
+
+		const visibleCards = cards.filter(c => c.style.display !== 'none');
+		visibleCards.sort((a, b) => {
+			const nameA = a.getAttribute('data-name')!, nameB = b.getAttribute('data-name')!;
+			if (sortBy === 'name-asc') return nameA.localeCompare(nameB);
+			if (sortBy === 'name-desc') return nameB.localeCompare(nameA);
+			if (sortBy === 'newest') return new Date(b.getAttribute('data-date')!).getTime() - new Date(a.getAttribute('data-date')!).getTime();
+			return 0;
+		});
+		visibleCards.forEach(card => grid?.appendChild(card));
 	}
 
 	resetBtn?.addEventListener('click', () => {
-		searchInput.value = '';
+		searchInput.value = ''; sortSelect.value = 'name-asc';
 		filterBtns.forEach(btn => {
 			const type = btn.getAttribute('data-type') as keyof typeof themes, isAll = btn.getAttribute('data-value') === 'all';
-			btn.classList.remove(...(themes[type] || []), ...themes.inactive);
+			btn.classList.remove(...(themes[type] || []), ...themes.inactive, 'active');
 			if (isAll) btn.classList.add(...(themes[type] || []), 'active'); else btn.classList.add(...themes.inactive);
 		});
 		applyFilters();
 	});
 
 	searchInput?.addEventListener('input', applyFilters);
+	sortSelect?.addEventListener('change', applyFilters);
 	
 	filterBtns.forEach(btn => {
 		btn.addEventListener('click', () => {
@@ -245,8 +264,8 @@ const femalePer = (femaleCount + maleCount) > 0 ? (femaleCount / (femaleCount + 
 				} else {
 					btn.classList.remove(...themes[type]); btn.classList.add(...themes.inactive);
 				}
-				if (!document.querySelector(`.${type}-btn.active`)) {
-					allBtn?.classList.add(...themes[type], 'active'); allBtn?.classList.remove(...themes.inactive);
+				if (allBtn && !document.querySelector(`.${type}-btn.active`)) {
+					allBtn.classList.add(...themes[type], 'active'); allBtn.classList.remove(...themes.inactive);
 				}
 			}
 			applyFilters();
