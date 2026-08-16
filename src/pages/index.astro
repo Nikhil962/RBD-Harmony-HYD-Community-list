@@ -8,29 +8,25 @@ const { data: providers } = await supabase
   .order('name', { ascending: true });
 
 const allCategories = [...new Set(providers?.flatMap(p => p.categories || []))].filter(Boolean).sort();
-const allLanguages = [...new Set(providers?.flatMap(p => p.languages || []))].filter(Boolean).sort();
 
-// Stats for sidebar
+// Stats for sidebar display
 const total = providers?.length || 0;
-const verifiedCount = providers?.filter(p => p.is_verified).length || 0;
+const maidsCount = providers?.filter(p => p.categories?.includes('Maid')).length || 0;
+const teluguCount = providers?.filter(p => p.languages?.includes('Telugu')).length || 0;
 const femaleCount = providers?.filter(p => p.gender?.toLowerCase() === 'female').length || 0;
 const maleCount = providers?.filter(p => p.gender?.toLowerCase() === 'male').length || 0;
+
 const femalePer = (femaleCount + maleCount) > 0 ? (femaleCount / (femaleCount + maleCount)) * 100 : 0;
+const maidPer = total > 0 ? (maidsCount / total) * 100 : 0;
 
 const categoryStats = allCategories.map(cat => ({
 	name: cat,
 	count: providers?.filter(p => p.categories?.includes(cat)).length || 0,
 	per: total > 0 ? ((providers?.filter(p => p.categories?.includes(cat)).length || 0) / total) * 100 : 0
 }));
-
-const languageStats = allLanguages.map(lang => ({
-	name: lang,
-	count: providers?.filter(p => p.languages?.includes(lang)).length || 0,
-	per: total > 0 ? ((providers?.filter(p => p.languages?.includes(lang)).length || 0) / total) * 100 : 0
-}));
 ---
 
-<Layout title="RBD Harmony | Community Directory">
+<Layout title="RBD Harmony | Secure Directory">
 	
 	<!-- Background Aura -->
 	<div class="fixed inset-0 pointer-events-none overflow-hidden z-0 opacity-40">
@@ -74,64 +70,41 @@ const languageStats = allLanguages.map(lang => ({
 			</div>
 		</aside>
 
-		<!-- CENTER: Search & Results -->
+		<!-- CENTER: Main Area -->
 		<main class="lg:col-span-6 space-y-6">
 			<!-- Action Bar -->
 			<div class="grid grid-cols-2 gap-3">
 				<a href="mailto:lihkinksnikhil@gmail.com?subject=RBD%20Harmony%20-%20Add%20Contact&body=Please%20add:%0D%0AName:%0D%0AGender:%0D%0APhone:%0D%0ACategories:%0D%0ALanguages:%0D%0ADescribe%20in%20what%20he/she%20is%20good%20at:" class="group flex flex-col items-center justify-center bg-zinc-900 border border-zinc-800 p-5 rounded-3xl hover:border-orange-500/50 transition-all active:scale-95 shadow-xl">
 					<span class="text-orange-500 mb-1 group-hover:scale-110 transition-transform"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
-					<span class="text-[10px] font-black text-zinc-400 uppercase tracking-widest text-center font-sans">Add Contact</span>
+					<span class="text-[10px] font-black text-zinc-400 uppercase tracking-widest text-center">Add Contact</span>
 				</a>
 				<a href="mailto:lihkinksnikhil@gmail.com?subject=RBD%20Harmony%20-%20Remove%20Contact" class="group flex flex-col items-center justify-center bg-zinc-900 border border-zinc-800 p-5 rounded-3xl hover:border-red-500/50 transition-all active:scale-95 shadow-xl">
 					<span class="text-zinc-600 mb-1 group-hover:text-red-500 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
-					<span class="text-[10px] font-black text-zinc-400 uppercase tracking-widest text-center font-sans">Remove Contact</span>
+					<span class="text-[10px] font-black text-zinc-400 uppercase tracking-widest text-center">Remove Contact</span>
 				</a>
 			</div>
 
 			<!-- Search -->
 			<div class="bg-zinc-900/90 backdrop-blur-xl p-1 rounded-3xl shadow-2xl ring-1 ring-white/10 flex items-center">
 				<div class="pl-5 text-zinc-600"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></div>
-				<input type="text" id="searchInput" placeholder="Search roles, names or keywords..." class="w-full p-5 bg-transparent border-none outline-none text-white placeholder-zinc-700 font-medium text-lg" />
+				<input type="text" id="searchInput" placeholder="Search name or work..." class="w-full p-5 bg-transparent border-none outline-none text-white placeholder-zinc-700 font-medium text-lg" />
 			</div>
 
 			<!-- Filters -->
-			<div class="space-y-5">
-				<div>
-					<p class="text-[8px] font-black text-zinc-600 uppercase tracking-[0.2em] px-1 mb-2">Roles</p>
-					<div id="categoryFilters" class="flex gap-2 overflow-x-auto no-scrollbar py-1">
-						<button class="filter-btn category-btn active bg-orange-600 text-white px-5 py-2 rounded-full text-[10px] font-black uppercase shrink-0" data-type="category" data-value="all">All Roles</button>
-						{allCategories.map(cat => (<button class="filter-btn category-btn bg-zinc-900 border border-zinc-800 text-zinc-500 px-5 py-2 rounded-full text-[10px] font-black uppercase shrink-0 hover:text-white" data-type="category" data-value={cat}>{cat}</button>))}
-					</div>
+			<div class="flex gap-2 items-center">
+				<div id="categoryFilters" class="flex gap-2 overflow-x-auto no-scrollbar py-1 flex-1">
+					<button class="filter-btn active bg-orange-600 text-white px-5 py-2 rounded-full text-[10px] font-black uppercase shrink-0" data-value="all">All Roles</button>
+					{allCategories.map(cat => (<button class="filter-btn bg-zinc-900 border border-zinc-800 text-zinc-500 px-5 py-2 rounded-full text-[10px] font-black uppercase shrink-0 hover:text-white" data-value={cat}>{cat}</button>))}
 				</div>
-				<div>
-					<p class="text-[8px] font-black text-zinc-600 uppercase tracking-[0.2em] px-1 mb-2">Languages</p>
-					<div id="languageFilters" class="flex gap-2 overflow-x-auto no-scrollbar py-1">
-						{allLanguages.map(lang => (<button class="filter-btn language-btn bg-zinc-900 border border-zinc-800 text-zinc-500 px-5 py-2 rounded-full text-[10px] font-black uppercase shrink-0 hover:text-white" data-type="language" data-value={lang}>{lang}</button>))}
-					</div>
-				</div>
-				<div>
-					<p class="text-[8px] font-black text-zinc-600 uppercase tracking-[0.2em] px-1 mb-2">Gender</p>
-					<div id="genderFilters" class="flex gap-2">
-						<button class="filter-btn gender-btn bg-zinc-900 border border-zinc-800 text-zinc-500 px-5 py-2 rounded-full text-[10px] font-black uppercase shrink-0 hover:text-white" data-type="gender" data-value="male">Male</button>
-						<button class="filter-btn gender-btn bg-zinc-900 border border-zinc-800 text-zinc-500 px-5 py-2 rounded-full text-[10px] font-black uppercase shrink-0 hover:text-white" data-type="gender" data-value="female">Female</button>
-					</div>
-				</div>
-				<div class="flex gap-2 pt-2">
-					<select id="sortSelect" class="flex-1 bg-zinc-900 text-zinc-400 text-[10px] font-black uppercase tracking-widest border border-zinc-800 rounded-2xl px-4 py-3 outline-none focus:ring-1 focus:ring-orange-500 transition-all cursor-pointer">
-						<option value="name-asc">Sort: A-Z</option>
-						<option value="name-desc">Sort: Z-A</option>
-						<option value="newest">Recently Added</option>
-					</select>
-					<button id="resetBtn" class="bg-zinc-900 border border-zinc-800 text-zinc-500 px-5 py-2 rounded-full text-[10px] font-black uppercase hover:text-white transition-all">Reset</button>
-				</div>
+				<button id="resetBtn" class="bg-zinc-900 border border-zinc-800 text-zinc-600 px-5 py-2 rounded-full text-[10px] font-black uppercase hover:text-white transition-all shrink-0">Reset</button>
 			</div>
 
 			<!-- List -->
 			<div class="grid gap-4" id="contactsGrid">
 				{providers?.map((person) => (
 					<div class="contact-card group bg-zinc-900/60 border border-white/5 rounded-[2.5rem] p-8 flex justify-between items-center transition-all duration-500 hover:bg-zinc-900 hover:border-orange-500/30 shadow-sm" 
-						 data-id={person.id} data-name={person.name.toLowerCase()} data-categories={person.categories?.join(',')} data-languages={person.languages?.join(',')}
-						 data-gender={person.gender?.toLowerCase() || ''} data-description={person.description?.toLowerCase() || ''} data-date={person.created_at}>
+						 data-name={person.name.toLowerCase()} data-categories={person.categories?.join(',')}
+						 data-gender={person.gender?.toLowerCase() || ''} data-description={person.description?.toLowerCase() || ''}>
 						<div class="flex-1 pr-4">
 							<div class="flex items-center gap-3 mb-2">
 								<h2 class="text-xl font-bold text-white tracking-tight uppercase italic leading-none">{person.name}</h2>
@@ -154,8 +127,8 @@ const languageStats = allLanguages.map(lang => ({
 			<!-- SUGGESTIONS FOOTER -->
 			<div class="mt-16 text-center border-t border-white/5 pt-10">
 				<p class="text-zinc-500 text-[10px] font-medium uppercase tracking-widest">
-					For any suggestions on the improvement of website, 
-					<a href="mailto:lihkinksnikhil@gmail.com?subject=RBD%20Harmony%20-%20Website%20Suggestion" class="text-orange-500 hover:text-orange-400 font-black transition-colors block mt-2 underline underline-offset-4 decoration-zinc-800">Please click here to write the mail</a>
+					For any suggestions on website improvement, 
+					<a href="mailto:lihkinksnikhil@gmail.com?subject=RBD%20Harmony%20-%20Website%20Suggestion" class="text-orange-500 hover:text-orange-400 font-black transition-colors block mt-2 underline underline-offset-4 decoration-zinc-800 uppercase tracking-widest">Click here to write to us</a>
 				</p>
 			</div>
 		</main>
@@ -164,30 +137,14 @@ const languageStats = allLanguages.map(lang => ({
 		<aside class="hidden lg:block lg:col-span-3 sticky top-10 self-start space-y-6">
 			<div class="bg-zinc-900/50 border border-white/5 rounded-[2rem] p-8 backdrop-blur-xl">
 				<p class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-8">Demographics</p>
-				<div class="space-y-10">
-					<div class="space-y-3">
-						<div class="flex justify-between items-end text-[10px] font-black text-white uppercase tracking-widest">
-							<p>Gender Ratio</p>
-							<div class="flex gap-2"><span>M {maleCount}</span><span class="text-orange-500">F {femaleCount}</span></div>
-						</div>
-						<div class="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden flex">
-							<div class="h-full bg-zinc-200" style={`width: ${100 - femalePer}%`}></div>
-							<div class="h-full bg-orange-500 shadow-[0_0_8px_#f97316]" style={`width: ${femalePer}%`}></div>
-						</div>
+				<div class="space-y-3">
+					<div class="flex justify-between items-end text-[10px] font-black text-white uppercase tracking-widest">
+						<p>Gender Ratio</p>
+						<div class="flex gap-2"><span>M {maleCount}</span><span class="text-orange-500">F {femaleCount}</span></div>
 					</div>
-					<div class="space-y-6 pt-6 border-t border-white/5">
-						<p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Fluency Breakdown</p>
-						{languageStats.map(stat => (
-							<div class="space-y-2">
-								<div class="flex justify-between items-end text-[9px] uppercase tracking-widest font-black">
-									<p class="text-zinc-400">{stat.name}</p>
-									<p class="text-blue-500">{stat.count}</p>
-								</div>
-								<div class="h-1 w-full bg-zinc-800 rounded-full overflow-hidden">
-									<div class="h-full bg-blue-500 shadow-[0_0_8px_#3b82f6]" style={`width: ${stat.per}%`}></div>
-								</div>
-							</div>
-						))}
+					<div class="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden flex">
+						<div class="h-full bg-zinc-200" style={`width: ${100 - femalePer}%`}></div>
+						<div class="h-full bg-orange-500 shadow-[0_0_8px_#f97316]" style={`width: ${femalePer}%`}></div>
 					</div>
 				</div>
 			</div>
@@ -197,75 +154,55 @@ const languageStats = allLanguages.map(lang => ({
 
 <script>
 	const searchInput = document.getElementById('searchInput') as HTMLInputElement;
-	const sortSelect = document.getElementById('sortSelect') as HTMLSelectElement;
 	const resetBtn = document.getElementById('resetBtn');
 	const filterBtns = document.querySelectorAll('.filter-btn');
-	const grid = document.getElementById('contactsGrid');
 	const cards = Array.from(document.querySelectorAll('.contact-card')) as HTMLElement[];
 
-	const themes = {
-		category: ['bg-orange-600', 'text-white', 'border-transparent', 'active'],
-		language: ['bg-blue-600', 'text-white', 'border-transparent', 'active'],
-		gender: ['bg-white', 'text-black', 'border-transparent', 'active'],
-		inactive: ['bg-zinc-900', 'text-zinc-500', 'border-zinc-800']
-	};
+	const activeClasses = ['bg-orange-600', 'text-white', 'border-transparent', 'active'];
+	const inactiveClasses = ['bg-zinc-900', 'text-zinc-500', 'border-zinc-800'];
 
 	function applyFilters() {
 		const searchTerm = searchInput.value.toLowerCase();
-		const sortBy = sortSelect.value;
-		const activeCats = Array.from(document.querySelectorAll('.category-btn.active')).map(b => b.getAttribute('data-value')).filter(v => v !== 'all');
-		const activeLangs = Array.from(document.querySelectorAll('.language-btn.active')).map(b => b.getAttribute('data-value'));
-		const activeGenders = Array.from(document.querySelectorAll('.gender-btn.active')).map(b => b.getAttribute('data-value'));
+		const activeCats = Array.from(document.querySelectorAll('.filter-btn.active')).map(b => b.getAttribute('data-value')).filter(v => v !== 'all');
 
 		cards.forEach(card => {
-			const name = card.getAttribute('data-name') || '', cats = card.getAttribute('data-categories')?.split(',') || [], langs = card.getAttribute('data-languages')?.split(',') || [], gender = card.getAttribute('data-gender') || '', desc = card.getAttribute('data-description') || '';
+			const name = card.getAttribute('data-name') || '', cats = card.getAttribute('data-categories')?.split(',') || [], desc = card.getAttribute('data-description') || '';
 			const matchSearch = name.includes(searchTerm) || cats.some(c => c.toLowerCase().includes(searchTerm)) || desc.includes(searchTerm);
 			const matchCat = activeCats.length === 0 || cats.some(c => activeCats.includes(c));
-			const matchLang = activeLangs.length === 0 || langs.some(l => activeLangs.includes(l));
-			const matchGender = activeGenders.length === 0 || activeGenders.includes(gender);
-			card.style.display = (matchSearch && matchCat && matchLang && matchGender) ? 'flex' : 'none';
+			card.style.display = (matchSearch && matchCat) ? 'flex' : 'none';
 		});
-
-		const visibleCards = cards.filter(c => c.style.display !== 'none');
-		visibleCards.sort((a, b) => {
-			const nameA = a.getAttribute('data-name')!, nameB = b.getAttribute('data-name')!;
-			if (sortBy === 'name-asc') return nameA.localeCompare(nameB);
-			if (sortBy === 'name-desc') return nameB.localeCompare(nameA);
-			if (sortBy === 'newest') return new Date(b.getAttribute('data-date')!).getTime() - new Date(a.getAttribute('data-date')!).getTime();
-			return 0;
-		});
-		visibleCards.forEach(card => grid?.appendChild(card));
 	}
 
 	resetBtn?.addEventListener('click', () => {
-		searchInput.value = ''; sortSelect.value = 'name-asc';
+		searchInput.value = '';
 		filterBtns.forEach(btn => {
-			const type = btn.getAttribute('data-type') as keyof typeof themes, isAll = btn.getAttribute('data-value') === 'all';
-			btn.classList.remove(...(themes[type] || []), ...themes.inactive, 'active');
-			if (isAll) btn.classList.add(...(themes[type] || []), 'active'); else btn.classList.add(...themes.inactive);
+			const isAll = btn.getAttribute('data-value') === 'all';
+			btn.classList.remove(...activeClasses, ...inactiveClasses, 'active');
+			if (isAll) { btn.classList.add(...activeClasses); } else { btn.classList.add(...inactiveClasses); }
 		});
 		applyFilters();
 	});
 
 	searchInput?.addEventListener('input', applyFilters);
-	sortSelect?.addEventListener('change', applyFilters);
 	
 	filterBtns.forEach(btn => {
 		btn.addEventListener('click', () => {
-			const type = btn.getAttribute('data-type') as keyof typeof themes, val = btn.getAttribute('data-value'), allBtn = document.querySelector(`.${type}-btn[data-value="all"]`), group = document.querySelectorAll(`.${type}-btn`);
+			const val = btn.getAttribute('data-value');
+			const allBtn = document.querySelector('.filter-btn[data-value="all"]');
+
 			if (val === 'all') {
-				group.forEach(b => { b.classList.remove(...themes[type], 'active'); b.classList.add(...themes.inactive); });
-				btn.classList.add(...themes[type], 'active'); btn.classList.remove(...themes.inactive);
+				filterBtns.forEach(b => { b.classList.remove(...activeClasses, 'active'); b.classList.add(...inactiveClasses); });
+				btn.classList.add(...activeClasses); btn.classList.remove(...inactiveClasses);
 			} else {
 				btn.classList.toggle('active');
 				if (btn.classList.contains('active')) {
-					btn.classList.add(...themes[type]); btn.classList.remove(...themes.inactive);
-					allBtn?.classList.remove(...themes[type], 'active'); allBtn?.classList.add(...themes.inactive);
+					btn.classList.add(...activeClasses); btn.classList.remove(...inactiveClasses);
+					allBtn?.classList.remove(...activeClasses, 'active'); allBtn?.classList.add(...inactiveClasses);
 				} else {
-					btn.classList.remove(...themes[type]); btn.classList.add(...themes.inactive);
+					btn.classList.remove(...activeClasses); btn.classList.add(...inactiveClasses);
 				}
-				if (allBtn && !document.querySelector(`.${type}-btn.active`)) {
-					allBtn.classList.add(...themes[type], 'active'); allBtn.classList.remove(...themes.inactive);
+				if (!document.querySelector('.filter-btn.active')) {
+					allBtn?.classList.add(...activeClasses); allBtn?.classList.remove(...inactiveClasses);
 				}
 			}
 			applyFilters();
